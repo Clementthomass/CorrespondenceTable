@@ -48,16 +48,21 @@
 #'     }
   
 
-retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "en", CSVout =  FALSE, showQuery=TRUE) {
-    
-    ## Define source from class --- classification
-    
+retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "en", CSVout = FALSE, showQuery = TRUE, localData = NULL) {
+  
+  ## Define source from class --- classification
+  
+  if (!is.null(localData)) {
+    # read data from parameter localData
+    data <- read.csv(localData)
+    print(data)
+  } else {
     ### Define endpoint
     if (endpoint == "CELLAR") {
-        source = "http://publications.europa.eu/webapi/rdf/sparql"
+      source = "http://publications.europa.eu/webapi/rdf/sparql"
     }
     if (endpoint == "FAO") {
-        source = "https://stats.fao.org/caliper/sparql/AllVocs"
+      source = "https://stats.fao.org/caliper/sparql/AllVocs"
     }
     
     ## Define A and B
@@ -73,39 +78,39 @@ retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "e
     ### CLASSIFICATION TABLE SPARQL QUERIES
     ### Define SPARQL query -- BASE
     SPARQL.query_0 = paste0(prefixlist, "
-    SELECT ?", A ," ?", B ," ?Label_", A ," ?Label_", B ," ?Include_", A ," ?Exclude_", A ," ?Include_", B ," ?Exclude_", B ," ?Comment ?URL  ?Sourcedatatype ?Targetdatatype 
-
-    WHERE {
-     ", prefix, ":", ID_table, " xkos:madeOf ?Associations .
-     ?Associations xkos:sourceConcept ?Source .
-     OPTIONAL  {?Associations xkos:targetConcept ?Target .}
-     OPTIONAL  {?Associations rdfs:comment ?Comment . }  
-
-     ?Source   skos:notation ?SourceNotation .
-     ?Target   skos:notation ?TargetNotation .
-
-     #FILTER ( datatype(?SourceNotation) = rdf:PlainLiteral)
-     #FILTER ( datatype(?TargetNotation) = rdf:PlainLiteral)
-     
-     BIND (STR(?Associations ) AS ?URL)
-     BIND (STR(?SourceNotation) as ?", A ,") 
-     BIND (STR(?TargetNotation) as ?", B ,")
-     BIND (datatype(?SourceNotation) AS ?Sourcedatatype)
-     BIND (datatype(?TargetNotation) AS ?Targetdatatype)
-
-     OPTIONAL { ?Source skos:altLabel ?Label_", A ,"  FILTER (LANG(?Label_", A ,") = '", language, "') .}
-     OPTIONAL { ?Target skos:altLabel ?Label_", B ,"  FILTER (LANG(?Label_", B ,") = '", language, "') .}
-     OPTIONAL {?Source skos:scopeNote ?Include_", A ,".     FILTER (LANG(?Include_", A ,") = '", language, "') .}
-     OPTIONAL {?Source xkos:exclusionNote ?Exclude_", A ,".    FILTER (LANG(?Exclude_", A ,") = '", language, "') .}
-     OPTIONAL {?Target skos:scopeNote ?Include_", B ,".     FILTER (LANG(?Include_", B ,") = '", language, "') .}
-     OPTIONAL {?Target xkos:exclusionNote ?Exclude_", B ,".    FILTER (LANG(?Exclude_", B ,") = '", language, "') .}
-
-   ")
+        SELECT ?", A ," ?", B ," ?Label_", A ," ?Label_", B ," ?Include_", A ," ?Exclude_", A ," ?Include_", B ," ?Exclude_", B ," ?Comment ?URL  ?Sourcedatatype ?Targetdatatype 
+        
+        WHERE {
+         ", prefix, ":", ID_table, " xkos:madeOf ?Associations .
+         ?Associations xkos:sourceConcept ?Source .
+         OPTIONAL  {?Associations xkos:targetConcept ?Target .}
+         OPTIONAL  {?Associations rdfs:comment ?Comment . }  
+    
+         ?Source   skos:notation ?SourceNotation .
+         ?Target   skos:notation ?TargetNotation .
+    
+         #FILTER ( datatype(?SourceNotation) = rdf:PlainLiteral)
+         #FILTER ( datatype(?TargetNotation) = rdf:PlainLiteral)
+         
+         BIND (STR(?Associations ) AS ?URL)
+         BIND (STR(?SourceNotation) as ?", A ,") 
+         BIND (STR(?TargetNotation) as ?", B ,")
+         BIND (datatype(?SourceNotation) AS ?Sourcedatatype)
+         BIND (datatype(?TargetNotation) AS ?Targetdatatype)
+    
+         OPTIONAL { ?Source skos:altLabel ?Label_", A ,"  FILTER (LANG(?Label_", A ,") = '", language, "') .}
+         OPTIONAL { ?Target skos:altLabel ?Label_", B ,"  FILTER (LANG(?Label_", B ,") = '", language, "') .}
+         OPTIONAL {?Source skos:scopeNote ?Include_", A ,".     FILTER (LANG(?Include_", A ,") = '", language, "') .}
+         OPTIONAL {?Source xkos:exclusionNote ?Exclude_", A ,".    FILTER (LANG(?Exclude_", A ,") = '", language, "') .}
+         OPTIONAL {?Target skos:scopeNote ?Include_", B ,".     FILTER (LANG(?Include_", B ,") = '", language, "') .}
+         OPTIONAL {?Target xkos:exclusionNote ?Exclude_", B ,".    FILTER (LANG(?Exclude_", B ,") = '", language, "') .}
+    
+       ")
     
     ### End SPARQL query ", prefix 
     SPARQL.query_end = paste0("}
-          ORDER BY ?Source
-         ")
+              ORDER BY ?Source
+             ")
     
     SPARQL.query = paste0(SPARQL.query_0, SPARQL.query_end)
     
@@ -119,8 +124,8 @@ retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "e
     Source_type = unique(data$Sourcedatatype)
     Target_type = unique(data$Targetdatatype)
     if (length(Source_type) > 1 | length(Target_type) > 1){
-        data = data[which(data$Sourcedatatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"), ]
-        data = data[which(data$Targetdatatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"), ]
+      data = data[which(data$Sourcedatatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"), ]
+      data = data[which(data$Targetdatatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"), ]
     }
     
     #remove datatype col
@@ -131,27 +136,27 @@ retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "e
     
     # Save results as CSV and show where it was stored
     if (CSVout == TRUE) {
-        name_csv = paste0(ID_table, "_table.csv")
-        write.csv(data, file= name_csv, row.names=FALSE)
-        message(paste0("The correspondence table was saved in ", getwd(), name_csv))
+      name_csv = paste0(ID_table, "_table.csv")
+      write.csv(data, file= name_csv, row.names=FALSE)
+      message(paste0("The correspondence table was saved in ", getwd(), name_csv))
     } else if (is.character(CSVout)) {
       # if user provide a csv file 
       write.csv(data, file = CSVout, row.names = FALSE)
       message(paste0("The table was saved in ", getwd(), CSVout))
     }
-    
-    
-    if (showQuery) {
-        result=list()
-        result[[1]]=SPARQL.query
-        result[[2]]=data
-        names(result)=c("SPARQL.query", "CorrespondenceTable")
-        cat(result$SPARQL.query, sep ="/n")
-    }
-    
-    if (showQuery==FALSE){
-        result=data
-    }
-
-    return(result)
+  }
+  
+  if (showQuery) {
+    result=list()
+    result[[1]]=SPARQL.query
+    result[[2]]=data
+    names(result)=c("SPARQL.query", "CorrespondenceTable")
+    cat(result$SPARQL.query, sep ="/n")
+  }
+  
+  if (showQuery == FALSE){
+    result=data
+  }
+  
+  return(result)
 }
