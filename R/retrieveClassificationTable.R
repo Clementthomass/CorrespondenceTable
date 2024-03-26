@@ -44,7 +44,7 @@
 #'     #View Classification Table
 #'     #View(results_ls[[2]])
 #'     }
-
+  
 
 
 retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = "ALL",  language = "en", CSVout = FALSE, showQuery=TRUE) {
