@@ -16,6 +16,7 @@
 #' If output should be saved as a csv file, the argument should be set as \code{TRUE}. By default, no csv file is produced. 
 #' @param showQuery The valid values are \code{FALSE} or \code{TRUE}. In both cases the correspondence table as an R object. 
 #' If needed to view the SPARQL query used, the argument should be set as \code{TRUE}. By default, no SPARQL query is produced.
+#' @param localData this parameter allow the user to retrieve static data from the package in order to avoid any issues from the api
 #' @import httr
 #' @export
 #' @return
