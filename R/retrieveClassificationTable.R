@@ -176,4 +176,5 @@ retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = 
   }
   
   return(result)
+  }
 }
