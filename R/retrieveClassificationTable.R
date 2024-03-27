@@ -31,7 +31,7 @@
 #'     \item Exclude: details on each object
 #'     \item URL: the URL from which the SPARQL query was retrieved
 #' }
-#' @examples
+#' @examples 
 #' {
 #'     endpoint = "CELLAR"
 #'     prefix = "nace2"

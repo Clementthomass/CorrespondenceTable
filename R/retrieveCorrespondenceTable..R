@@ -33,7 +33,7 @@
 #'     \item Comment: details on each object, if available 
 #'     \item URL: the URL from which the SPARQL query was retrieved
 #' }
-#' @examples
+#' @examples 
 #' {
 #'     endpoint = "CELLAR"
 #'     prefix = "cn2022"
