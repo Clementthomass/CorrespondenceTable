@@ -44,6 +44,9 @@
 #'     #View Classification Table
 #'     #View(results_ls[[2]])
 #'     }
+#'     
+#'     nace2 = (system.file("extdata", "nace2.csv", package = "correspondenceTables"))
+#'     retrieve =retrieveClassificationTable(localData = nace2) 
 
 
 
