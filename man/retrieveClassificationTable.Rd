@@ -39,6 +39,8 @@ If output should be saved as a csv file, the argument should be set as \code{TRU
 
 \item{showQuery}{The valid values are \code{FALSE} or \code{TRUE}. In both cases the classification table as an R object. 
 If needed to view the SPARQL query used, the argument should be set as \code{TRUE}. By default, no SPARQL query is produced.}
+
+\item{localData}{this parameter allow the user to retrieve static data from the package in order to avoid any issues from the api}
 }
 \value{
 \code{retrieveClassificationTable()} returns a classification tables from CELLAR and FAO. The table includes the following variables: 
