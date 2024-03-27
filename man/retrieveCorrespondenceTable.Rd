@@ -10,7 +10,8 @@ retrieveCorrespondenceTable(
   ID_table,
   language = "en",
   CSVout = FALSE,
-  showQuery = TRUE
+  showQuery = TRUE,
+  localData = NULL
 )
 }
 \arguments{
