@@ -52,8 +52,9 @@
 
 
 retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = "ALL", language = "en", CSVout = FALSE, showQuery = TRUE, localData = NULL) {
-  if (!is.null(localData)) {
-    # read data from parameter localData
+  localData <- system.file("extdata", paste0(prefix, "_", language, ".csv"), package = "correspondenceTables")  
+  
+  if (file.exists(localData)) {
     data <- read.csv(localData)
     print(data)
   } else {
@@ -182,3 +183,4 @@ retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = 
   return(result)
   }
 }
+
