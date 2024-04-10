@@ -46,17 +46,22 @@
 #'     #View(results_ls[[2]])
 #'     }
 #'     
-#'     nace2 = (system.file("extdata", "nace2.csv", package = "correspondenceTables"))
-#'     retrieve =retrieveClassificationTable(localData = nace2) 
 
 
 
-retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = "ALL", language = "en", CSVout = FALSE, showQuery = TRUE, localData = NULL) {
-  localData <- system.file("extdata", paste0(prefix, "_", language, ".csv"), package = "correspondenceTables")  
+
+retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = "ALL", language = "en", CSVout = FALSE, showQuery = TRUE) {
+  # Build the local data file path based on function parameters
+  localDataPath <- system.file("extdata", paste0(prefix, "_", language, ".csv"), package = "correspondenceTables")
   
-  if (file.exists(localData)) {
-    data <- read.csv(localData)
-    print(data)
+  if (file.exists(localDataPath)) {
+    # Read data from the local file if it exists
+    data <- read.csv(localDataPath)
+    if (showQuery) {
+      print("Data loaded from local file.")
+    }
+    # Return data read from the local file without executing the rest of the function
+    return(data)
   } else {
   ### Define endpoint
   if (endpoint == "CELLAR") {
@@ -158,7 +163,7 @@ retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = 
   
   # Save results as CSV and show where it was stored
   if (CSVout == TRUE) {
-    name_csv = paste0(prefix, "_table.csv")
+    name_csv = paste0(prefix,"_", language, ".csv")
     write.csv(data, file= name_csv, row.names=FALSE)
     message(paste0("The table was saved in ", getwd(), name_csv))
   } else if (is.character(CSVout)) {
