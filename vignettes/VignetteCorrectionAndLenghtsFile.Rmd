@@ -37,8 +37,7 @@ prefix = "nace2"
 conceptScheme = "nace2"
 endpoint = "CELLAR"
 language = "en"
-classification = retrieveClassificationTable(prefix, endpoint,conceptScheme,language="en",level="ALL")$ClassificationTable
-classification = classification[,c(1,2)]
+classification = retrieveClassificationTable(prefix,endpoint,conceptScheme,language="en",level="ALL")
 colnames(classification)[1:2] = c("Code", "Label")
 ```
 

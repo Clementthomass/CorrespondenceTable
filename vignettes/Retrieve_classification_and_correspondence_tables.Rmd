@@ -64,8 +64,9 @@ result_fr <-retrieveClassificationTable(prefix = "nace2", endpoint = "CELLAR", c
 
 result_bg <-retrieveClassificationTable(prefix = "nace2", endpoint = "CELLAR", conceptScheme = "nace2", language = "bg",CSVout=FALSE)
 
-
-
+result_de
+result_fr
+result_bg
 # # identify the SPARQL query used
 # SPARQLquery = result_ls[[1]]
 # ### cat put the break line for the sparql query
@@ -194,7 +195,9 @@ result_cor_de<- retrieveCorrespondenceTable(prefix = "nace2", endpoint = "CELLAR
 
 
 
-
+result_cor_bg
+result_cor_fr
+result_cor_de
 ```
 
 To following code is used to retrieve a specific correspondence table between CPCv21 and ISIC4 from FAO:
