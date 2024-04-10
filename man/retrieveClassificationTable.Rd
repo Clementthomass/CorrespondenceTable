@@ -11,8 +11,7 @@ retrieveClassificationTable(
   level = "ALL",
   language = "en",
   CSVout = FALSE,
-  showQuery = TRUE,
-  localData = NULL
+  showQuery = TRUE
 )
 }
 \arguments{
@@ -72,6 +71,4 @@ To facilitate the utilization of European classifications as inputs for the newC
     #View(results_ls[[2]])
     }
     
-    nace2 = (system.file("extdata", "nace2.csv", package = "correspondenceTables"))
-    retrieve =retrieveClassificationTable(localData = nace2) 
 }
