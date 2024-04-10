@@ -136,7 +136,7 @@ If the prefix is one of "cn2017", "cn2018", "cn2019", "cn2020", "cn2021", "cn202
 
 **remove "." in the end of the code for CBF**
 
-If the prefix is "cbf10", the last character (".") is removed from the code values in the classification Code column.
+If the prefix is "cbf10",  the last character (".") is removed from the code values in the classification Code column.
 ```{r}
 if (prefix %in% c("cbf10")) {
         classification[,1] = substr(classification[,1], 1, nchar(classification[,1])-1)
