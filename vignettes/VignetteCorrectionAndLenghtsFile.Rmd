@@ -36,7 +36,8 @@ To following code is used to corrects the classification table by adding necessa
 prefix = "nace2"
 conceptScheme = "nace2"
 endpoint = "CELLAR"
-classification = retrieveClassificationTable(localData=system.file("extdata","nace2.csv",package = "correspondenceTables"))
+language = "en"
+classification = retrieveClassificationTable(prefix, endpoint, conceptScheme,language="en",level="ALL")$ClassificationTable
 classification = classification[,c(1,2)]
 colnames(classification)[1:2] = c("Code", "Label")
 ```
