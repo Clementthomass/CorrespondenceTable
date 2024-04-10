@@ -45,8 +45,8 @@ The following code is used to retrieve the french,Deutch and bulgarian NACE2  cl
 endpoint = "CELLAR"
 # obtain prefix and conceptscheme using classificationEndpoint()
 classificationEndpoint(endpoint)[[1]][,1:4]
-prefix = "nace21"
-conceptScheme = "nace2.1"
+prefix = "nace2"
+conceptScheme = "nace2"
 ## You can modify the language by example "en" "bg"
 language = "en"
 CSVout = F
@@ -58,12 +58,13 @@ level = "ALL"
 # level_dt; level
 
 # result_ls = retrieveClassificationTable(prefix, endpoint, conceptScheme, level , language, CSVout, showQuery)
+result_de <-retrieveClassificationTable(prefix = "nace2", endpoint = "CELLAR", conceptScheme = "nace2", language = "de",CSVout=FALSE)
 
-result_bg = retrieveClassificationTable(localData = system.file("extdata","nace2_bg.csv", package = "correspondenceTables"))
+result_fr <-retrieveClassificationTable(prefix = "nace2", endpoint = "CELLAR", conceptScheme = "nace2", language = "fr",CSVout=FALSE)
 
-result_fr = retrieveClassificationTable(localData = system.file("extdata","nace2_fr.csv", package = "correspondenceTables"))
+result_bg <-retrieveClassificationTable(prefix = "nace2", endpoint = "CELLAR", conceptScheme = "nace2", language = "bg",CSVout=FALSE)
 
-result_de = retrieveClassificationTable(localData = system.file("extdata","nace2_de.csv", package = "correspondenceTables"))
+
 
 # # identify the SPARQL query used
 # SPARQLquery = result_ls[[1]]
@@ -176,17 +177,22 @@ To following code is used to retrieve the French Deutsch and Bulgarian correspon
 # 
 # result_ls = retrieveCorrespondenceTable(prefix, endpoint, ID_table, language, CSVout, showQuery)
 # 
-# # identify the SPARQL query used
+# # identify the SPARQL query usedN
 # SPARQLquery = result_ls[[1]]
 # cat(SPARQLquery, sep = "\n")
 # # obtained the table
 # table = result_ls[[2]]
 
-result_fr = retrieveCorrespondenceTable(showQuery = F,localData = system.file("extdata","NACE2_CPA21_fr.csv",package = "correspondenceTables"))
+result_cor_bg<- retrieveCorrespondenceTable(prefix = "nace2", endpoint = "CELLAR", ID_table = "NACE2_CPA21",language = "bg",
+                                        CSVout = FALSE)
 
-result_de = retrieveCorrespondenceTable(showQuery = F,localData = system.file("extdata","NACE2_CPA21_de.csv",package = "correspondenceTables"))
+result_cor_fr<- retrieveCorrespondenceTable(prefix = "nace2", endpoint = "CELLAR", ID_table = "NACE2_CPA21",language = "fr",
+                                        CSVout = FALSE)
 
-result_bg = retrieveCorrespondenceTable(showQuery = F,localData = system.file("extdata","NACE2_CPA21_bg.csv",package = "correspondenceTables"))
+result_cor_de<- retrieveCorrespondenceTable(prefix = "nace2", endpoint = "CELLAR", ID_table = "NACE2_CPA21",language = "de",
+                                        CSVout = FALSE)
+
+
 
 
 ```
