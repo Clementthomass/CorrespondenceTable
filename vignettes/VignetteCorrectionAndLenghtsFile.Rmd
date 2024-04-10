@@ -46,7 +46,7 @@ These different code show the different correction for each classification.
 
 **Correction for (NACE - NACE 2.1 - CPA21 - and ISIC) add a letter **
 Letter addition for NACE, NACE 2.1, CPA21, and ISIC:
-
+ 
 For each classification (NACE, NACE 2.1, CPA21, and ISIC), specific code ranges are identified using the substr function. Then, a letter is added to the corresponding code values in the classification$Code column. For example, codes starting with "01" or "02" or "03" are assigned the letter "A", codes starting with "05" or "06" or "07" or "08" or "09" are assigned the letter "B" and for the other number we input different letters from alphabet 
 ```{r}
    if (prefix %in% c("nace2", "nace21", "cpa21", "ISICrev4")) {
