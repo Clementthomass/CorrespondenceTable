@@ -47,7 +47,7 @@
 #'     #View Classification Table
 #'     #View(results_ls[[2]])
 #'     }
-
+ 
  
 retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "en", CSVout = FALSE, showQuery = TRUE) {
   
