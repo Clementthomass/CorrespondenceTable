@@ -50,7 +50,7 @@
 #'     nace2_cpa21 = (system.file("extdata", "NACE2_CPA21_de.csv", package = "correspondenceTables"))
 #'     retrieve = retrieveCorrespondenceTable(showQuery = FALSE,localData= nace2_cpa21)
   
-
+ 
 retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "en", CSVout = FALSE, showQuery = TRUE) {
   
   # Construct the path for local data based on function parameters
