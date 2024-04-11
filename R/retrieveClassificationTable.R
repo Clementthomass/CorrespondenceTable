@@ -48,20 +48,19 @@
 #'     
 
 
-
-
 retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = "ALL", language = "en", CSVout = FALSE, showQuery = TRUE) {
-  # Build the local data file path based on function parameters
-  localDataPath <- system.file("extdata", paste0(prefix, "_", language, ".csv"), package = "correspondenceTables")
-  
-  if (file.exists(localDataPath)) {
-    # Read data from the local file if it exists
-    data <- read.csv(localDataPath)
-    if (showQuery) {
-      print("Data loaded from local file.")
+  # Check the useLocalDataForVignettes option
+  if (getOption("useLocalDataForVignettes", FALSE)) {
+    localDataPath <- system.file("extdata", paste0(prefix, "_", language, ".csv"), package = "correspondenceTables")
+    
+    if (file.exists(localDataPath)) {
+      # Read data from the local file if it exists
+      data <- read.csv(localDataPath)
+      if (showQuery) {
+        print("Data loaded from local file.")
+      }
+      return(data)
     }
-    # Return data read from the local file without executing the rest of the function
-    return(data)
   } else {
   ### Define endpoint
   if (endpoint == "CELLAR") {

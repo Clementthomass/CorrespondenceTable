@@ -37,8 +37,10 @@ prefix = "nace2"
 conceptScheme = "nace2"
 endpoint = "CELLAR"
 language = "en"
+options(useLocalDataForVignettes = TRUE)
 classification = retrieveClassificationTable(prefix,endpoint,conceptScheme,language="en",level="ALL")
 colnames(classification)[1:2] = c("Code", "Label")
+classification
 ```
 
 These different code show the different correction for each classification.

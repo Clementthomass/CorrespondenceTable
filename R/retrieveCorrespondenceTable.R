@@ -48,20 +48,20 @@
 #'     #View(results_ls[[2]])
 #'     }
  
- 
+
 retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "en", CSVout = FALSE, showQuery = TRUE) {
-  
-  # Construct the path for local data based on function parameters
-  localDataPath <- system.file("extdata", paste0(ID_table, "_", language, ".csv"), package = "correspondenceTables")
-  
-  if (file.exists(localDataPath)) {
-    # Read data from the constructed localDataPath
-    data <- read.csv(localDataPath)
-    if (showQuery) {
-      print("Data loaded from local file.")
+  # Check the useLocalDataForVignettes option
+  if (getOption("useLocalDataForVignettes", FALSE)) {
+    localDataPath <- system.file("extdata", paste0(ID_table, "_", language, ".csv"), package = "correspondenceTables")
+    
+    if (file.exists(localDataPath)) {
+      # Read data from the local file if it exists
+      data <- read.csv(localDataPath)
+      if (showQuery) {
+        print("Data loaded from local file.")
+      }
+      return(data)
     }
-    # Return data read from the local file without executing the rest of the function
-    return(data)
   } else {
     ### Define endpoint
     if (endpoint == "CELLAR") {

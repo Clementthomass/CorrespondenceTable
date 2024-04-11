@@ -39,7 +39,7 @@ The namespace prefix needed to execute the SPARQL query are automatically genera
 
 **Application of function retrieveClassificationTable()**
 
-The following code is used to retrieve the french,Deutch and bulgarian NACE2  classification from static data:
+The following code is used to retrieve the german,french and bulgarian NACE2  classification from static data:
 
 ```{r, results = "hide"}
 endpoint = "CELLAR"
@@ -56,7 +56,7 @@ level = "ALL"
 # level_dt = dataStructure(prefix, conceptScheme, endpoint, language)
 # level = level_dt[nrow(level_dt),2]
 # level_dt; level
-
+options(useLocalDataForVignettes = TRUE)
 # result_ls = retrieveClassificationTable(prefix, endpoint, conceptScheme, level , language, CSVout, showQuery)
 result_de <-retrieveClassificationTable(prefix = "nace2", endpoint = "CELLAR", conceptScheme = "nace2", language = "de",CSVout=FALSE)
 
@@ -164,7 +164,7 @@ The namespace prefix needed to execute the SPARQL query are automatically genera
 
 **Application of function retrieveCorrespondenceTable()**
 
-To following code is used to retrieve the French Deutsch and Bulgarian correspondence table  between NACE2 and CPA21 from static data :
+To following code is used to retrieve the French German and Bulgarian correspondence table  between NACE2 and CPA21 from static data :
 ```{r, results = "hide"}
 
 # endpoint = "CELLAR"
@@ -183,7 +183,7 @@ To following code is used to retrieve the French Deutsch and Bulgarian correspon
 # cat(SPARQLquery, sep = "\n")
 # # obtained the table
 # table = result_ls[[2]]
-
+options(useLocalDataForVignettes = TRUE)
 result_cor_bg<- retrieveCorrespondenceTable(prefix = "nace2", endpoint = "CELLAR", ID_table = "NACE2_CPA21",language = "bg",
                                         CSVout = FALSE)
 
