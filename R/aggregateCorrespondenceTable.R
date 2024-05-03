@@ -32,7 +32,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Read the input correspondence table AB
   # ab_data <- read.csv2(AB, header = TRUE, sep =",")
-  ColumnNames <- colnames(ab_data)[1:2]
+  ColumnNames_ab <- colnames(ab_data)[1:2]
   colnames(ab_data)[1:2] = c("Acode","Bcode")
  
   
@@ -58,7 +58,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Display problematic rows
   if (nrow(missing_code_rows) > 0) {
-    print("Rows with missing values in the Acode or Bcode column of the AB data:")
+    print(paste("Rows with missing values in the", ColumnNames_ab[1], "or", ColumnNames_ab[2], "column of the AB data:"))
     print(missing_code_rows)
     cat("\n")
   }
@@ -68,7 +68,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   ######## 
   ####Read the source classification table A
  
-  
+  ColumnNames_a <- colnames(a_data)[1:3]
   colnames(a_data)[1:3] = c("Acode","Alevel","Asuperior")
   
   # Check if there are any records left in table A
@@ -87,7 +87,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Display problematic rows
   if (nrow(problematic_rows) > 0) {
-    print("Rows with missing or empty values in the Alevel column:")
+    print(paste("Rows with missing or empty values in the Alevel column:", ColumnNames_a[2]))
     print(problematic_rows)
     cat("\n")
   }
@@ -95,9 +95,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check for duplicate Acode values in table A
   Aduplicated_rows <- a_data[duplicated(a_data$Acode), "Acode"]
   if (length(Aduplicated_rows) > 0) {
-    print("Duplicate(s) value(s) of Acode found in the input table A:")
+    print(paste("Duplicate(s) value(s) of Acode", ColumnNames_a[1], "found in the input table A:"))
     print(Aduplicated_rows)
-    tryCatch(stop("Please remove duplicate(s) values of Acode in the input table A."), error = function(e) {})
+    tryCatch(stop(paste("Please remove duplicate(s) values of Acode,", ColumnNames_a[1], "in the input table A.")), error = function(e) {})
   } else {
     # print("No duplicate(s) value(s) of Acode in the input table A.")
   }
@@ -108,7 +108,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Display rows with text in Asuperior for level 1 records
   if (nrow(a_level_1_with_text) > 0) {
-    print("The following records at level 1 have text in the Asuperior column:")
+    print(paste("The following records at level 1 have text in the Asuperior column:", ColumnNames_a[3]))
     print(a_level_1_with_text)
     cat("\n")
   }
@@ -116,7 +116,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check if Asuperior is a character or blank for records at level 1
   tryCatch({
     if (!all((is.character(a_data$Asuperior) & a_data$Alevel != 1) | (is.na(a_data$Asuperior) & a_data$Alevel == 1))) {
-      stop("Asuperior column in the source classification table A must be blank for records at level 1.")
+      stop(paste("Asuperior column,", ColumnNames_a[3], "in the source classification table A must be blank for records at level 1."))
     }
   }, error = function(e) {})
   
@@ -152,7 +152,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   
   # Read the target classification table B
-
+  ColumnNames_b <- colnames(b_data)[1:3]
   colnames(b_data)[1:3] = c("Bcode","Blevel","Bsuperior")
   
   
@@ -166,7 +166,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Display problematic rows
   if (nrow(problematic_rows) > 0) {
-    print("Rows with missing or empty values in the Blevel column:")
+    print(paste("Rows with missing or empty values in the Blevel column:", ColumnNames_b[2]))
     print(problematic_rows)
     cat("\n")
   }
@@ -174,9 +174,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check for duplicate Bcode values in table B
   Bduplicated_rows <- b_data[duplicated(b_data$Bcode), "Bcode"]
   if (length(Bduplicated_rows) > 0) {
-    print("Duplicate(s) value(s) of Bcode found in the input table B :")
+    print(paste("Duplicate(s) value(s) of Bcode", ColumnNames_b[1], "found in the input table B :"))
     print(Bduplicated_rows)
-    tryCatch(stop("Please remove duplicate(s) value(s) of Bcode in the input table B ."), error = function(e) {})
+    tryCatch(stop(paste("Please remove duplicate(s) value(s) of Bcode,", ColumnNames_b[1],"in the input table B .")), error = function(e) {})
   } else {
     # print("No duplicate(s) value(s) of Bcode in the input table B .")
   }
@@ -187,7 +187,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Display rows with text in Bsuperior for level 1 records
   if (nrow(b_level_1_with_text) > 0) {
-    print("Bsuperior column in the target classification table B must be blank for records at level 1.")
+    print(paste("Bsuperior column,", ColumnNames_b[3], "in the target classification table B must be blank for records at level 1."))
     print(b_level_1_with_text)
     cat("\n")
   }
@@ -195,7 +195,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check if Bsuperior is a character or blank for records at level 1
   tryCatch({
     if (!all((is.character(b_data$Bsuperior) & b_data$Blevel != 1) | (is.na(b_data$Bsuperior) & b_data$Blevel == 1))) {
-      stop("Bsuperior column in the source classification table B must contain characters or be blank for records at level 1.")
+      stop(paste("Bsuperior column,", ColumnNames_b[3], "in the source classification table B must contain characters or be blank for records at level 1."))
     }
   }, error = function(e) {})
   
@@ -229,8 +229,10 @@ check_n_columns(b_data,"Target classification (B)", 3)
   }
   
   # Uniqueness Check if Acode and Bcode in AB exist in A and B respectively
-  if (!all(ab_data$Acode %in% a_data$Acode) || !all(ab_data$Bcode %in% b_data$Bcode)) {
-    tryCatch(stop("Acode or Bcode in the input correspondence table does not exist in source or target classification table."), error = function(e) {})
+  if (!all(ab_data$Acode %in% a_data$Acode)) {
+    tryCatch(stop("Acode in the input correspondence table does not exist in source or target classification table."), error = function(e) {})
+  } else if (!all(ab_data$Bcode %in% b_data$Bcode)){
+    tryCatch(stop("Bcode in the input correspondence table does not exist in source or target classification table."), error = function(e) {})
   }
   
   
@@ -244,12 +246,18 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   AB_mostGranular <- merge(AmostGranular, BmostGranular, by.x = "Acode", by.y = "Bcode")
   
-  if (!(all(ab_data$Acode %in% AmostGranular$Acode) && all(ab_data$Bcode %in% BmostGranular$Bcode))) {
-    stop("Acode or Bcode in the input correspondence table does not exist in source or target classification table.")
+  if (!(all(ab_data$Acode %in% AmostGranular$Acode))) {
+    stop("Acode in the input correspondence table does not exist in source or target classification table.")
+  }
+  if (!(all(ab_data$Bcode %in% BmostGranular$Bcode))) {
+    stop("Bcode in the input correspondence table does not exist in source or target classification table.")
   }
   
-  if (!(all(AB_mostGranular$Acode %in% ab_data$Acode) && all(AB_mostGranular$Bcode %in% ab_data$Bcode))) {
-    stop("Acode or Bcode in the most granular correspondence table does not exist in the input correspondence table.")
+  if (!(all(AB_mostGranular$Acode %in% ab_data$Acode))) {
+    stop("Acode in the most granular correspondence table does not exist in the input correspondence table.")
+  }
+  if (!(all(AB_mostGranular$Bcode %in% ab_data$Bcode))) {
+    stop("Bcode in the most granular correspondence table does not exist in the input correspondence table.")
   }
   ########## 4.1 Creation of the table and merge it. 
   
@@ -371,12 +379,12 @@ check_n_columns(b_data,"Target classification (B)", 3)
   acode_levels <- rep(acode_levels, length.out = max_levels)
   bcode_levels <- rep(bcode_levels, length.out = max_levels)
   # Define the new column names
-  new_colnames <- c(paste0(ColumnNames[1]," level"),
-                    paste0(ColumnNames[2]," level"),
-                    ColumnNames[1],
-                    ColumnNames[2],
-                    paste0("N of ", ColumnNames[1], acode_levels, " level values "),
-                    paste0("N of ", ColumnNames[2] , bcode_levels , " level values "))
+  new_colnames <- c(paste0(ColumnNames_ab[1]," level"),
+                    paste0(ColumnNames_ab[2]," level"),
+                    ColumnNames_ab[1],
+                    ColumnNames_ab[2],
+                    paste0("N of ", ColumnNames_ab[1], acode_levels, " level values "),
+                    paste0("N of ", ColumnNames_ab[2] , bcode_levels , " level values "))
   
   # Update column names in results_df
   colnames(results_df) <- new_colnames
@@ -388,7 +396,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     
     # If CSVout is TRUE, generate the file name and proceed
     if (is.logical(CSVout) && CSVout == TRUE) {
-      file_name <- paste0("AggregateCorrespondenceTable_", ColumnNames[1], "_", ColumnNames[2], ".csv")
+      file_name <- paste0("AggregateCorrespondenceTable_", ColumnNames_ab[1], "_", ColumnNames_ab[2], ".csv")
       path_file <- file.path(getwd(), file_name)
       
       # Check for file existence and prompt for overwrite confirmation
