@@ -95,9 +95,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check for duplicate Acode values in table A
   Aduplicated_rows <- a_data[duplicated(a_data$Acode), "Acode"]
   if (length(Aduplicated_rows) > 0) {
-    print(paste("Duplicate(s) value(s) of Acode", ColumnNames_a[1], "found in the input table A:"))
+    print(paste("Duplicate(s) value(s) of Acode column named:", ColumnNames_a[1], "found in the input table A:"))
     print(Aduplicated_rows)
-    tryCatch(stop(paste("Please remove duplicate(s) values of Acode,", ColumnNames_a[1], "in the input table A.")), error = function(e) {})
+    tryCatch(stop(paste("Please remove duplicate(s) values of Acode column named:", ColumnNames_a[1], "in the input table A.")), error = function(e) {})
   } else {
     # print("No duplicate(s) value(s) of Acode in the input table A.")
   }
@@ -134,7 +134,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     error_rows <- which(!(Ai$Asuperior %in% AiMinus1$Acode))
     if (length(error_rows) > 0) {
       cat("Hierarchy error in A_data at level:", currentLevelA, "\n")
-      cat("For the specified level, error occured in line:", error_rows, "\n")
+      cat("For the specified level, error at occurence:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in A_data."), error = function(e) {})
     } 
     
@@ -142,7 +142,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     error_rows <- which(!(AiMinus1$Acode %in% Ai$Asuperior))
     if (length(error_rows) > 0) {
       cat("Hierarchy error in_A-data at level:", currentLevelA - 1, "\n")
-      cat("For the specified level, error occured in line:", error_rows, "\n")
+      cat("For the specified level, error at occurence:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in A_data."), error = function(e) {})
     }
     
@@ -174,9 +174,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check for duplicate Bcode values in table B
   Bduplicated_rows <- b_data[duplicated(b_data$Bcode), "Bcode"]
   if (length(Bduplicated_rows) > 0) {
-    print(paste("Duplicate(s) value(s) of Bcode", ColumnNames_b[1], "found in the input table B :"))
+    print(paste("Duplicate(s) value(s) of Bcode column named:", ColumnNames_b[1], "found in the input table B :"))
     print(Bduplicated_rows)
-    tryCatch(stop(paste("Please remove duplicate(s) value(s) of Bcode,", ColumnNames_b[1],"in the input table B .")), error = function(e) {})
+    tryCatch(stop(paste("Please remove duplicate(s) value(s) of Bcode column named:", ColumnNames_b[1],"in the input table B .")), error = function(e) {})
   } else {
     # print("No duplicate(s) value(s) of Bcode in the input table B .")
   }
@@ -212,7 +212,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     error_rows <- which(!(Bi$Bsuperior %in% BiMinus1$Bcode))
     if (length(error_rows) > 0) {
       cat("Hierarchy error in B_data at level:", currentLevelB, "\n")
-      cat("For the specified level, error occured in line:", error_rows, "\n")
+      cat("For the specified level, error at occurence:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in B_data."), error = function(e) {})
     } 
     
@@ -220,7 +220,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     error_rows <- which(!(BiMinus1$Bcode %in% Bi$Bsuperior))
     if (length(error_rows) > 0) {
       cat("Hierarchy error in B_data at level:", currentLevelB - 1, "\n")
-      cat("For the specified level, error occured in line:", error_rows, "\n")
+      cat("For the specified level, error at occurence:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in B_data."), error = function(e) {})
     }
     
