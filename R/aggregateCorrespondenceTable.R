@@ -134,15 +134,15 @@ check_n_columns(b_data,"Target classification (B)", 3)
     error_rows <- which(!(Ai$Asuperior %in% AiMinus1$Acode))
     if (length(error_rows) > 0) {
       cat("Hierarchy error in A_data at level:", currentLevelA, "\n")
-      cat("Error occurred in rows:", error_rows, "\n")
+      cat("For the specified level, error occured in line:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in A_data."), error = function(e) {})
     } 
     
     # Check if all values of Acode (in AiMinus1) correspond to values of Asuperior (in Ai)
     error_rows <- which(!(AiMinus1$Acode %in% Ai$Asuperior))
     if (length(error_rows) > 0) {
-      cat("Hierarchy error in A-data at level:", currentLevelA - 1, "\n")
-      cat("Error occurred in rows:", error_rows, "\n")
+      cat("Hierarchy error in_A-data at level:", currentLevelA - 1, "\n")
+      cat("For the specified level, error occured in line:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in A_data."), error = function(e) {})
     }
     
@@ -212,7 +212,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     error_rows <- which(!(Bi$Bsuperior %in% BiMinus1$Bcode))
     if (length(error_rows) > 0) {
       cat("Hierarchy error in B_data at level:", currentLevelB, "\n")
-      cat("Error occurred in rows:", error_rows, "\n")
+      cat("For the specified level, error occured in line:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in B_data."), error = function(e) {})
     } 
     
@@ -220,7 +220,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     error_rows <- which(!(BiMinus1$Bcode %in% Bi$Bsuperior))
     if (length(error_rows) > 0) {
       cat("Hierarchy error in B_data at level:", currentLevelB - 1, "\n")
-      cat("Error occurred in rows:", error_rows, "\n")
+      cat("For the specified level, error occured in line:", error_rows, "\n")
       tryCatch(stop("Hierarchy error detected in B_data."), error = function(e) {})
     }
     
@@ -230,9 +230,21 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Uniqueness Check if Acode and Bcode in AB exist in A and B respectively
   if (!all(ab_data$Acode %in% a_data$Acode)) {
-    tryCatch(stop("Acode in the input correspondence table does not exist in source or target classification table."), error = function(e) {})
-  } else if (!all(ab_data$Bcode %in% b_data$Bcode)){
-    tryCatch(stop("Bcode in the input correspondence table does not exist in source or target classification table."), error = function(e) {})
+    offending_Acodes <- ab_data$Acode[!ab_data$Acode %in% a_data$Acode]
+    tryCatch(
+      stop(paste("Acode in the input correspondence table does not exist in source classification table. Offending Acodes:", paste(offending_Acodes, collapse = ", "))),
+      error = function(e) {
+        cat("Error:", e$message, "\n")
+      }
+    )
+  } else if (!all(ab_data$Bcode %in% b_data$Bcode)) {
+    offending_Bcodes <- ab_data$Bcode[!ab_data$Bcode %in% b_data$Bcode]
+    tryCatch(
+      stop(paste("Bcode in the input correspondence table does not exist in target classification table. Offending Bcodes:", paste(offending_Bcodes, collapse = ", "))),
+      error = function(e) {
+        cat("Error:", e$message, "\n")
+      }
+    )
   }
   
   
@@ -246,18 +258,13 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   AB_mostGranular <- merge(AmostGranular, BmostGranular, by.x = "Acode", by.y = "Bcode")
   
-  if (!(all(ab_data$Acode %in% AmostGranular$Acode))) {
-    stop("Acode in the input correspondence table does not exist in source or target classification table.")
-  }
-  if (!(all(ab_data$Bcode %in% BmostGranular$Bcode))) {
-    stop("Bcode in the input correspondence table does not exist in source or target classification table.")
-  }
-  
   if (!(all(AB_mostGranular$Acode %in% ab_data$Acode))) {
-    stop("Acode in the most granular correspondence table does not exist in the input correspondence table.")
+    offending_Acodes <- AB_mostGranular$Acode[!AB_mostGranular$Acode %in% ab_data$Acode]
+    stop(paste("Acode in the most granular correspondence table does not exist in the input correspondence table. Offending Acodes:", paste(offending_Acodes, collapse = ", ")))
   }
   if (!(all(AB_mostGranular$Bcode %in% ab_data$Bcode))) {
-    stop("Bcode in the most granular correspondence table does not exist in the input correspondence table.")
+    offending_Bcodes <- AB_mostGranular$Bcode[!AB_mostGranular$Bcode %in% ab_data$Bcode]
+    stop(paste("Bcode in the most granular correspondence table does not exist in the input correspondence table. Offending Bcodes:", paste(offending_Bcodes, collapse = ", ")))
   }
   ########## 4.1 Creation of the table and merge it. 
   
