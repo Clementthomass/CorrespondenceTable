@@ -2,7 +2,7 @@ testCsvParameter <- function(arg_name, arg_value) {
   caller <- sys.call(-1)
   tryCatch({
     if (is.null(arg_value)) {
-      message(paste("Warning in", as.character(caller[1]), ":", arg_name, "is NULL. No CSV file will be generated."))
+      message(paste("Warning in", as.character(caller[1]), ":", arg_name, "argument is NULL. No CSV file will be generated."))
       return()
     }
     
@@ -22,23 +22,24 @@ testCsvParameter <- function(arg_name, arg_value) {
     }
     
     if (!is.character(arg_value)) {
-      stop(paste("Error in", as.character(caller[1]), ":", arg_name, "must be a character string."))
-    }
-    
-    if (!file.exists(arg_value)) {
-      stop(paste("Error in", as.character(caller[1]), ":", "File path for", arg_name, "does not exist."))
+      stop(paste(arg_name, "argument must be a character string."))
     }
     
     # Check if it's a directory path
     if (dir.exists(arg_value)) {
-      stop(paste("Error in", as.character(caller[1]), ":", "File path for", arg_name, "is a directory path."))
+      stop(paste("File path for", arg_name, "is a directory path missing the file name and extension"))
     }
+    
     
     if (!grepl("\\.csv$", arg_value)) {
-      stop(paste("Error in", as.character(caller[1]), ":", "File", arg_name, "does not have the .csv extension."))
+      stop(paste("File", arg_name, "does not have the .csv extension."))
     }
     
+    # if (!file.exists(arg_value)) {
+    #   stop(paste("File path for", arg_name, "does not exist."))
+    # }
+ 
   }, error = function(e) {
-    message(paste("Error in", as.character(caller[1]), ":", e$message))
+    stop(message(paste("Error in", as.character(caller[1]), ":", e$message)))
   })
 }

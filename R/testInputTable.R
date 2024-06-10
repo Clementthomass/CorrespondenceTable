@@ -2,6 +2,9 @@ testInputTable <- function(arg_name, arg_value) {
   errors <- c()  # Initialiser un vecteur pour collecter les messages d'erreur
   caller <- sys.call(-1) #define the caller function
   
+  if (missing(arg_value) || length(arg_value) == 0) {
+    stop(paste("Argument", arg_name, "is not defined or empty"))
+  }
   tryCatch({
     if (is.character(arg_value)) {
       if (!file.exists(arg_value)) {
