@@ -442,7 +442,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
       # Attempting to write to the CSV file with error handling
       tryCatch({
         write.csv(results_df, CSVout, row.names = FALSE)
-        cat("The table was saved in ", CSVout, "\n")
+        # cat("The table was saved in ", CSVout, "\n")
       }, error = function(e) {
         cat("An error occurred while writing to the file:\n")
         cat(e$message, "\n")

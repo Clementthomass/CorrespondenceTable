@@ -2,12 +2,12 @@ testCsvParameter <- function(arg_name, arg_value) {
   caller <- sys.call(-1)
   tryCatch({
     if (is.null(arg_value)) {
-      message(paste("Warning in", as.character(caller[1]), ":", arg_name, "argument is NULL. No CSV file will be generated."))
+      # message(paste("Warning in", as.character(caller[1]), ":", arg_name, "argument is NULL. No CSV file will be generated."))
       return()
     }
     
     if (arg_value == FALSE) {
-      message(paste("Warning in", as.character(caller[1]), ":", arg_name, "is FALSE. No CSV file will be generated."))
+      # message(paste("Warning in", as.character(caller[1]), ":", arg_name, "is FALSE. No CSV file will be generated."))
       return()
     }
     
