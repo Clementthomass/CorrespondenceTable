@@ -315,7 +315,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   }
   
   # Result will contain the final aggregated correspondence table with hierarchical code columns for A
-  resultA$test <- resultA[[paste0("Acode", mostGranularA)]]
+  resultA$granular <- resultA[[paste0("Acode", mostGranularA)]]
   resultA$Asuperior <- NULL
   
   # Determine the most granular level dynamically
@@ -349,14 +349,17 @@ check_n_columns(b_data,"Target classification (B)", 3)
   }
   
   # Result will contain the final aggregated correspondence table with hierarchical code columns for B
-  resultB$test <- resultB[[paste0("Bcode", mostGranularB)]]
+  resultB$granular <- resultB[[paste0("Bcode", mostGranularB)]]
   resultB$Bsuperior <- NULL
   
   
-  # Merge resultA and resultB using the 'test' column as the key
-  Merged_AB <- merge(resultA, resultB, by.x = "test", by.y = "test", all = F)
-  Merged_AB$test <- NULL
-  
+  # Merge resultA and resultB using the 'granular' column as the key
+  Merged_resultA_AB <- merge(resultA, ab_data, by.x = "granular", by.y= "Acode", all= F)
+  Merged_AB <- merge(Merged_resultA_AB, resultB, by.x= "Bcode", by.y= "granular", all=F)
+  names(Merged_AB)[names(Merged_AB) == "Acode"] <- "Acode1"
+  names(Merged_AB)[names(Merged_AB) == "Bcode.y"] <- "Bcode1"
+  Merged_AB$Bcode <- NULL
+  Merged_AB$granular <- NULL
   
   ##Table merged 
   final_result <-Merged_AB
@@ -411,8 +414,8 @@ check_n_columns(b_data,"Target classification (B)", 3)
                     paste0(ColumnNames_ab[2]," level"),
                     ColumnNames_ab[1],
                     ColumnNames_ab[2],
-                    paste0("N of ", ColumnNames_ab[1], acode_levels, " level values "),
-                    paste0("N of ", ColumnNames_ab[2] , bcode_levels , " level values "))
+                    paste("N of", ColumnNames_ab[1], "level", acode_levels,  "values"),
+                    paste("N of", ColumnNames_ab[2] , "level", bcode_levels , "values"))
   
   # Update column names in results_df
   colnames(results_df) <- new_colnames
