@@ -35,6 +35,15 @@ check_n_columns(b_data,"Target classification (B)", 3)
   ColumnNames_ab <- colnames(ab_data)[1:2]
   colnames(ab_data)[1:2] = c("Acode","Bcode")
  
+  # Check if there are any records 
+  tryCatch(
+    {
+      if (nrow(ab_data) == 0) {
+        stop("No valid records found in the input correspondence table AB.")
+      }
+    }, error = function(e) {
+      message("Error in aggregateCorrespondenceTable: ",conditionMessage(e))
+    })
   
   # Find duplicated combinations of Acode and Bcode in AB
   duplicated_rows <- ab_data[duplicated(ab_data[c("Acode", "Bcode")]), c("Acode", "Bcode")]
@@ -47,16 +56,6 @@ check_n_columns(b_data,"Target classification (B)", 3)
     }, error = function(e) {
       message("Error in aggregateCorrespondenceTable:",conditionMessage(e))
       print(duplicated_rows)
-    })
-  
-  # Check if there are any records left
-  tryCatch(
-    {
-  if (nrow(ab_data) == 0) {
-    stop("No valid records found in the input correspondence table AB.")
-    }
-      }, error = function(e) {
-        message("Error in aggregateCorrespondenceTable: ",conditionMessage(e))
     })
   
   
@@ -102,9 +101,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check for duplicate Acode values in table A
   Aduplicated_rows <- a_data[duplicated(a_data$Acode), "Acode"]
   if (length(Aduplicated_rows) > 0) {
-    print(paste("Duplicate(s) value(s) of Acode column named:", ColumnNames_a[1], "found in the input table A:"))
+    message(paste("Duplicate(s) value(s) of Acode column named:", ColumnNames_a[1], "found in the input table A:"))
     print(Aduplicated_rows)
-    tryCatch(stop(paste("Please remove duplicate(s) values of Acode column named:", ColumnNames_a[1], "in the input table A.")), error = function(e) {})
+    stop(paste("Please remove duplicate(s) values of Acode column named:", ColumnNames_a[1], "in the input table A."))
   } else {
     # print("No duplicate(s) value(s) of Acode in the input table A.")
   }
@@ -115,9 +114,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Display rows with text in Asuperior for level 1 records
   if (nrow(a_level_1_with_text) > 0) {
-    print(paste("The following records at level 1 have text in the Asuperior column:", ColumnNames_a[3]))
+    message(paste("In the source classification table, the following records at level 1 have text in the Asuperior column:", ColumnNames_a[3]))
     print(a_level_1_with_text)
-    cat("\n")
+    stop()
   }
   
   # Check if Asuperior is a character or blank for records at level 1
@@ -171,7 +170,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Check if there are any records left in table B
   if (nrow(b_data) == 0) {
-    tryCatch(stop("No valid records found in the input correspondence table B."), error = function(e) {})
+  stop("No valid records found in the input correspondence table B.")
   }
   
   # Filter rows where there are NA or empty values in the Blevel column
@@ -187,9 +186,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   # Check for duplicate Bcode values in table B
   Bduplicated_rows <- b_data[duplicated(b_data$Bcode), "Bcode"]
   if (length(Bduplicated_rows) > 0) {
-    print(paste("Duplicate(s) value(s) of Bcode column named:", ColumnNames_b[1], "found in the input table B :"))
+    message(paste("Duplicate(s) value(s) of Bcode column named:", ColumnNames_b[1], "found in the input table B :"))
     print(Bduplicated_rows)
-    tryCatch(stop(paste("Please remove duplicate(s) value(s) of Bcode column named:", ColumnNames_b[1],"in the input table B .")), error = function(e) {})
+    stop(paste("Please remove duplicate(s) value(s) of Bcode column named:", ColumnNames_b[1],"in the input table B ."))
   } else {
     # print("No duplicate(s) value(s) of Bcode in the input table B .")
   }
@@ -200,9 +199,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
   # Display rows with text in Bsuperior for level 1 records
   if (nrow(b_level_1_with_text) > 0) {
-    print(paste("Bsuperior column,", ColumnNames_b[3], "in the target classification table B must be blank for records at level 1."))
+    message(paste("Bsuperior column,", ColumnNames_b[3], "in the target classification table B must be blank for records at level 1."))
     print(b_level_1_with_text)
-    cat("\n")
+    stop()
   }
   
   # Check if Bsuperior is a character or blank for records at level 1
