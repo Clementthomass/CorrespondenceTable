@@ -435,22 +435,34 @@ check_n_columns(b_data,"Target classification (B)", 3)
       if (file.exists(CSVout)) {
         cat("A CSV file with the same name already exists.\n")
         cat("Warning: This action will overwrite the existing file.\n")
+        proceed <- ""
         proceed <- readline("Do you want to proceed? (y/n): ")
         if (tolower(proceed) != "y") {
           cat("Operation aborted.\n")
           return(results_df)
+        } else {
+          tryCatch({
+            write.csv(results_df, CSVout, row.names = FALSE)
+            # cat("The table was saved in ", CSVout, "\n")
+          }, error = function(e) {
+            cat("An error occurred while writing to the file:\n")
+            cat(e$message, "\n")
+            return(results_df)
+          })
+          
         }
-      }
+      } else{
       # Attempting to write to the CSV file with error handling
       tryCatch({
         write.csv(results_df, CSVout, row.names = FALSE)
         # cat("The table was saved in ", CSVout, "\n")
-      }, error = function(e) {
+                }, error = function(e) {
         cat("An error occurred while writing to the file:\n")
         cat(e$message, "\n")
         return(results_df)
-      })
-    }
-      
+               })
+      }
+    } else {
 return(results_df)  
+    }
 }

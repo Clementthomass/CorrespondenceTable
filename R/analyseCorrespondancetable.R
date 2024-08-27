@@ -44,13 +44,15 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   # } else if (class(AB) == "data.frame") {} else {
   #   stop("Parameter AB must be a path to a CSV file")
   # }
-  AB <- testInputTable("Correspondence table (AB)", AB)
+    
+  ab_data <- testInputTable("Correspondence table (AB)", AB)
+  
   
   #Check if required number of columns are present in input
-  check_n_columns(AB,"Correspondence table (AB)", 2)
+  check_n_columns(ab_data,"Correspondence table (AB)", 2)
   
-  ColumnNames_ab <- colnames(AB)[1:2]
-  colnames(AB)[1:2] = c("Acode", "Bcode")
+  ColumnNames_ab <- colnames(ab_data)[1:2]
+  colnames(ab_data)[1:2] = c("Acode", "Bcode")
   
   # # Check if AB file has required columns
   # if (!("Acode" %in% colnames(AB)) || !("Bcode" %in% colnames(AB))) {
@@ -62,7 +64,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   # Check if there are any records
   tryCatch(
     {
-      if (nrow(AB) == 0) {
+      if (nrow(ab_data) == 0) {
         stop("No valid records found in the input correspondence table AB.")
       }
     }, error = function(e) {
@@ -71,7 +73,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   
   
   # Filter rows where Acode or Bcode is missing in the AB data
-  missing_code_rows <- AB[is.na(AB$Acode) | AB$Acode == "" | is.na(AB$Bcode) | AB$Bcode == "", ]
+  missing_code_rows <- ab_data[is.na(ab_data$Acode) | ab_data$Acode == "" | is.na(ab_data$Bcode) | ab_data$Bcode == "", ]
   tryCatch(
     {
       # Display problematic rows
@@ -89,11 +91,11 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   # }
   
   # Check uniqueness of code pairs in AB file
-  duplicate_pairs <- duplicated(AB[c("Acode", "Bcode")]) | duplicated(AB[c("Acode", "Bcode")], fromLast = TRUE)
+  duplicate_pairs <- duplicated(ab_data[c("Acode", "Bcode")]) | duplicated(ab_data[c("Acode", "Bcode")], fromLast = TRUE)
   tryCatch(
     {
   if (any(duplicate_pairs)) {
-    first_duplicate <- AB[duplicate_pairs, c("Acode", "Bcode")][1, ]
+    first_duplicate <- ab_data[duplicate_pairs, c("Acode", "Bcode")][1, ]
     stop(paste("Duplicate code pair found in AB file:", first_duplicate$Acode, "-", first_duplicate$Bcode))
     }
   },error = function(e) {
@@ -143,9 +145,9 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
       })
     
     # Find unmatched source classification codes
-    unmatched_codes_A <- setdiff(a_data$Acode, AB$Acode)
+    unmatched_codes_A <- setdiff(a_data$Acode, ab_data$Acode)
     noCorrespondenceA <- a_data[a_data$Acode %in% unmatched_codes_A, ]
-    noClassificationA <- AB[AB$Acode %in% unmatched_codes_A, ]
+    noClassificationA <- ab_data[ab_data$Acode %in% unmatched_codes_A, ]
     
     # Print the length of noCorrespondenceA or a message indicating all codes in A are covered
     if (nrow(noCorrespondenceA) > 0) {
@@ -196,9 +198,9 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
     }
     
     # Find unmatched source classification codes for B
-    unmatched_codes_B <- setdiff(b_data$Bcode, AB$Bcode)
+    unmatched_codes_B <- setdiff(b_data$Bcode, ab_data$Bcode)
     noCorrespondenceB <- b_data[b_data$Bcode %in% unmatched_codes_B, ]
-    noClassificationB <- AB[AB$Bcode %in% unmatched_codes_B, ]
+    noClassificationB <- ab_data[ab_data$Bcode %in% unmatched_codes_B, ]
     
     # Print the length of noCorrespondenceB or a message indicating all codes in B are covered
     if (nrow(noCorrespondenceB) > 0) {
@@ -217,18 +219,18 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   
   # Filter AB data based on formatA and formatB, if specified
   if (!is.null(formatA) && !is.null(formatB)) {
-    AB$Acode <- as.character(AB$Acode)
-    AB$Bcode <- as.character(AB$Bcode)
-    AB <- AB[nchar(AB$Acode) == formatA & nchar(AB$Bcode) == formatB, ]
+    ab_data$Acode <- as.character(ab_data$Acode)
+    ab_data$Bcode <- as.character(ab_data$Bcode)
+    ab_data <- ab_data[nchar(ab_data$Acode) == formatA & nchar(ab_data$Bcode) == formatB, ]
     
     # Check if there are any valid records after filtering
-    if (nrow(AB) == 0) {
+    if (nrow(ab_data) == 0) {
       stop("No valid records found in the AB file after applying formatA and formatB filters.")
     }
   }
   #bipartitePart
   # create the bipartite graph 
-  g <- graph.data.frame(AB, directed = FALSE)
+  g <- graph.data.frame(ab_data, directed = FALSE)
   
   # all composant
   components <- decompose.graph(g)
@@ -236,11 +238,11 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   # list of composant by code 
   component_codes <- lapply(components, function(comp) V(comp)$name)
   
-  AB$component <- NA
+  ab_data$component <- NA
   
   for (i in seq_along(component_codes)) {
     component <- component_codes[[i]]
-    AB$component[AB$Acode %in% component] <- paste("Component", i)
+    ab_data$component[ab_data$Acode %in% component] <- paste("Component", i)
   }
   ### Print AB to see the component column for the correspondenceTable between Source & Target.
   
@@ -250,29 +252,29 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   component_index <- 0
   component_stats <- lapply(components, function(comp) {
     component <- V(comp)$name
-    n_unique_targets <- length(unique(AB[AB$Acode %in% component, "Bcode"]))
+    n_unique_targets <- length(unique(ab_data[ab_data$Acode %in% component, "Bcode"]))
     
     correspondence_type <- if (n_unique_targets == 1) {
-      if (length(unique(AB[AB$Bcode %in% component, "Acode"])) == 1) {
+      if (length(unique(ab_data[ab_data$Bcode %in% component, "Acode"])) == 1) {
         "1:1"
       } else {
         "M:1"
       }
     } else {
-      if (length(unique(AB[AB$Bcode %in% component, "Acode"])) == 1) {
+      if (length(unique(ab_data[ab_data$Bcode %in% component, "Acode"])) == 1) {
         "1:M"
       } else {
         "M:M"
       }
     }
     
-    source_positions <- unique(AB[AB$Acode %in% component, "Acode"])
-    target_positions <- unique(AB[AB$Acode %in% component, "Bcode"])
+    source_positions <- unique(ab_data[ab_data$Acode %in% component, "Acode"])
+    target_positions <- unique(ab_data[ab_data$Acode %in% component, "Bcode"])
     n_source_positions <- length(source_positions)
     n_target_positions <- length(target_positions)
     
     component_index <- component_index + 1
-    component_name <- unique(AB[AB$Acode %in% component, "component"])
+    component_name <- unique(ab_data[ab_data$Acode %in% component, "component"])
     
     list(
       Component = component_name,
@@ -292,8 +294,8 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   
   ## Creation of Annex B
   Annexe_B <- data.frame(
-    ClassC = AB$Acode,
-    ClassD = AB$Bcode,
+    ClassC = ab_data$Acode,
+    ClassD = ab_data$Bcode,
     nTargetClasses = NA,
     SourceToTargetMapping = NA,
     nSourceClasses = NA,
@@ -334,37 +336,96 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
   annex_B_df <- as.data.frame(output_annex_B)
   
   # Take the user's CSV file name to create CSV files
-  if (!is.null(input_file_path)) {
-    base_file_name <- tools::file_path_sans_ext(tools::file_path_sans_ext(basename(input_file_path)))
-  } else {
-    # Generate a unique base file name (e.g., based on the timestamp)
-    base_file_name <- paste0("correspondence_analysis_", format(Sys.time(), "%Y%m%d%H%M%S"))
-  }
+  #if (!is.null(input_file_path)) {
+ #  if (!grepl("\\.csv$", AB)) {
+ #    base_file_name <- tools::file_path_sans_ext(tools::file_path_sans_ext(basename(AB)))
+ # } else {
+    # Generate a unique base file name (based on the timestamp)
+   base_file_name <- paste0("correspondence_analysis_", format(Sys.time(), "%Y%m%d%H%M%S"))
+  # }
  
   
-  if (!is.null(CSVcorrespondenceInventory)) {
-    if (is.character(CSVcorrespondenceInventory)) {
-      chemin_inventaire <- CSVcorrespondenceInventory
-    } else {
-      # Generate a file name based on the name of the first column, "correspondence", and the date
-      chemin_inventaire <- paste0("Correspondence_inventory_",ColumnNames_ab[1], "_", ColumnNames_ab[2],  ".csv")
-    }
-    write.csv(annex_A_df, chemin_inventaire, row.names = FALSE)
-    message(paste0("The table was saved in ", getwd(), chemin_inventaire))
-  }
+  # if (!is.null(CSVcorrespondenceInventory)) {
+  #   if (is.character(CSVcorrespondenceInventory)) {
+  #     chemin_inventaire <- CSVcorrespondenceInventory
+  #   } else {
+  #     # Generate a file name based on the name of the first column, "correspondence", and the date
+  #     chemin_inventaire <- paste0("Correspondence_inventory_",ColumnNames_ab[1], "_", ColumnNames_ab[2],  ".csv")
+  #   }
+  #   write.csv(annex_A_df, chemin_inventaire, row.names = FALSE)
+  #   message(paste0("The table was saved in ", getwd(), chemin_inventaire))
+  # }
+   
+   if (!is.null(CSVcorrespondenceInventory)) {
+     
+     # Check for file existence and prompt for overwrite confirmation
+     if (file.exists(CSVcorrespondenceInventory)) {
+       cat("A CSV file with the same name for CSVcorrespondenceInventory already exists.\n")
+       cat("Warning: This action will overwrite the existing file.\n")
+       proceed1 <- ""
+       proceed1 <- readline("Do you want to proceed? (y/n): ")
+       if (tolower(proceed1) != "y") {
+         cat("Operation aborted.\n")
+       } else {
+         tryCatch({
+           write.csv(annex_A_df, CSVcorrespondenceInventory, row.names = FALSE)
+         }, error = function(e) {
+           cat("An error occurred while writing to the file:\n")
+           cat(e$message, "\n")
+         })
+       }
+     } else{
+       # Attempting to write to the CSV file with error handling
+       tryCatch({
+         write.csv(annex_A_df, CSVcorrespondenceInventory, row.names = FALSE)
+       }, error = function(e) {
+         cat("An error occurred while writing to the file:\n")
+         cat(e$message, "\n")
+       })
+     }
+   }
   
-  if (!is.null(CSVcorrespondenceAnalysis)) {
-    if (is.character(CSVcorrespondenceAnalysis)) {
-      # If it's a valid file path, use it
-      chemin_analyse <- CSVcorrespondenceAnalysis
-    } else {
-      # Generate a file name based on the name of the first column, "correspondence", and the date
-      chemin_analyse <- paste0("Correspondence_analysis_", ColumnNames_ab[1], "_", ColumnNames_ab[2],  ".csv")
-    }
-    write.csv(annex_B_df, chemin_analyse, row.names = FALSE)
-    message(paste0("The table was saved in ", getwd(), chemin_analyse))
-  }
-  
+  # if (!is.null(CSVcorrespondenceAnalysis)) {
+  #   if (is.character(CSVcorrespondenceAnalysis)) {
+  #     # If it's a valid file path, use it
+  #     chemin_analyse <- CSVcorrespondenceAnalysis
+  #   } else {
+  #     # Generate a file name based on the name of the first column, "correspondence", and the date
+  #     chemin_analyse <- paste0("Correspondence_analysis_", ColumnNames_ab[1], "_", ColumnNames_ab[2],  ".csv")
+  #   }
+  #   write.csv(annex_B_df, chemin_analyse, row.names = FALSE)
+  #   message(paste0("The table was saved in ", getwd(), chemin_analyse))
+  # }
+   
+   if (!is.null(CSVcorrespondenceAnalysis)) {
+     
+     # Check for file existence and prompt for overwrite confirmation
+     if (file.exists(CSVcorrespondenceAnalysis)) {
+       cat("A CSV file with the same name for CSVcorrespondenceAnalysis already exists.\n")
+       cat("Warning: This action will overwrite the existing file.\n")
+       proceed2 <- ""
+       proceed2 <- readline("Do you want to proceed? (y/n): ")
+       if (tolower(proceed2) != "y") {
+         cat("Operation aborted.\n")
+       } else {
+         tryCatch({
+           write.csv(annex_B_df, CSVcorrespondenceAnalysis, row.names = FALSE)
+         }, error = function(e) {
+           cat("An error occurred while writing to the file:\n")
+           cat(e$message, "\n")
+         })
+       }
+     } else{
+       # Attempting to write to the CSV file with error handling
+       tryCatch({
+         write.csv(annex_B_df, CSVcorrespondenceAnalysis, row.names = FALSE)
+       }, error = function(e) {
+         cat("An error occurred while writing to the file:\n")
+         cat(e$message, "\n")
+       })
+     }
+   }
+   
   # Output list of the two dataframes.
   output <- list(Annexe_A = output_annex_A, Annexe_B = output_annex_B)
   

@@ -57,7 +57,8 @@ result2 <-analyseCorrespondenceTable(AB = (system.file("extdata", "ab_data.csv",
                              formatA = c(1,5) ,
                              B = B <- (system.file("extdata", "b_data.csv", package = "correspondenceTables")),
                              formatB = c(1,5),
-                             CSVcorrespondenceInventory = T, CSVcorrespondenceAnalysis = T)
+                             CSVcorrespondenceInventory =system.file("extdata", "CorrespondenceInventoryExample.csv", package = "correspondenceTables"), 
+                             CSVcorrespondenceAnalysis = system.file("extdata", "CorrespondenceAnalysisExample.csv", package = "correspondenceTables"))
 
 print(result2$Annexe_A)
 ###for Annexe_A run this code : View(result2$Annexe_A)
