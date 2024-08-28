@@ -423,46 +423,8 @@ check_n_columns(b_data,"Target classification (B)", 3)
   
     # Using the testCsvParameter function to validate CSVoutz
     testCsvParameter("CSV", CSVout)
-    
-    # If CSVout is TRUE, generate the file name and proceed
-    # if (is.logical(CSVout) && CSVout == TRUE) {
-    #   file_name <- paste0("AggregateCorrespondenceTable_", ColumnNames_ab[1], "_", ColumnNames_ab[2], ".csv")
-    #   path_file <- file.path(getwd(), file_name)
       
-    if (!is.null(CSVout)) {
+    CsvFileSave(CSVout, results_df)
     
-      # Check for file existence and prompt for overwrite confirmation
-      if (file.exists(CSVout)) {
-        cat("A CSV file with the same name already exists.\n")
-        cat("Warning: This action will overwrite the existing file.\n")
-        proceed <- ""
-        proceed <- readline("Do you want to proceed? (y/n): ")
-        if (tolower(proceed) != "y") {
-          cat("Operation aborted.\n")
-          return(results_df)
-        } else {
-          tryCatch({
-            write.csv(results_df, CSVout, row.names = FALSE)
-            # cat("The table was saved in ", CSVout, "\n")
-          }, error = function(e) {
-            cat("An error occurred while writing to the file:\n")
-            cat(e$message, "\n")
-            return(results_df)
-          })
-          
-        }
-      } else{
-      # Attempting to write to the CSV file with error handling
-      tryCatch({
-        write.csv(results_df, CSVout, row.names = FALSE)
-        # cat("The table was saved in ", CSVout, "\n")
-                }, error = function(e) {
-        cat("An error occurred while writing to the file:\n")
-        cat(e$message, "\n")
-        return(results_df)
-               })
-      }
-    } else {
 return(results_df)  
-    }
 }

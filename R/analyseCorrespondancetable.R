@@ -343,89 +343,10 @@ analyseCorrespondenceTable <- function(AB, A = NULL, formatA = NULL, B = NULL, f
     # Generate a unique base file name (based on the timestamp)
    base_file_name <- paste0("correspondence_analysis_", format(Sys.time(), "%Y%m%d%H%M%S"))
   # }
- 
-  
-  # if (!is.null(CSVcorrespondenceInventory)) {
-  #   if (is.character(CSVcorrespondenceInventory)) {
-  #     chemin_inventaire <- CSVcorrespondenceInventory
-  #   } else {
-  #     # Generate a file name based on the name of the first column, "correspondence", and the date
-  #     chemin_inventaire <- paste0("Correspondence_inventory_",ColumnNames_ab[1], "_", ColumnNames_ab[2],  ".csv")
-  #   }
-  #   write.csv(annex_A_df, chemin_inventaire, row.names = FALSE)
-  #   message(paste0("The table was saved in ", getwd(), chemin_inventaire))
-  # }
    
-   if (!is.null(CSVcorrespondenceInventory)) {
-     
-     # Check for file existence and prompt for overwrite confirmation
-     if (file.exists(CSVcorrespondenceInventory)) {
-       cat("A CSV file with the same name for CSVcorrespondenceInventory already exists.\n")
-       cat("Warning: This action will overwrite the existing file.\n")
-       proceed1 <- ""
-       proceed1 <- readline("Do you want to proceed? (y/n): ")
-       if (tolower(proceed1) != "y") {
-         cat("Operation aborted.\n")
-       } else {
-         tryCatch({
-           write.csv(annex_A_df, CSVcorrespondenceInventory, row.names = FALSE)
-         }, error = function(e) {
-           cat("An error occurred while writing to the file:\n")
-           cat(e$message, "\n")
-         })
-       }
-     } else{
-       # Attempting to write to the CSV file with error handling
-       tryCatch({
-         write.csv(annex_A_df, CSVcorrespondenceInventory, row.names = FALSE)
-       }, error = function(e) {
-         cat("An error occurred while writing to the file:\n")
-         cat(e$message, "\n")
-       })
-     }
-   }
-  
-  # if (!is.null(CSVcorrespondenceAnalysis)) {
-  #   if (is.character(CSVcorrespondenceAnalysis)) {
-  #     # If it's a valid file path, use it
-  #     chemin_analyse <- CSVcorrespondenceAnalysis
-  #   } else {
-  #     # Generate a file name based on the name of the first column, "correspondence", and the date
-  #     chemin_analyse <- paste0("Correspondence_analysis_", ColumnNames_ab[1], "_", ColumnNames_ab[2],  ".csv")
-  #   }
-  #   write.csv(annex_B_df, chemin_analyse, row.names = FALSE)
-  #   message(paste0("The table was saved in ", getwd(), chemin_analyse))
-  # }
-   
-   if (!is.null(CSVcorrespondenceAnalysis)) {
-     
-     # Check for file existence and prompt for overwrite confirmation
-     if (file.exists(CSVcorrespondenceAnalysis)) {
-       cat("A CSV file with the same name for CSVcorrespondenceAnalysis already exists.\n")
-       cat("Warning: This action will overwrite the existing file.\n")
-       proceed2 <- ""
-       proceed2 <- readline("Do you want to proceed? (y/n): ")
-       if (tolower(proceed2) != "y") {
-         cat("Operation aborted.\n")
-       } else {
-         tryCatch({
-           write.csv(annex_B_df, CSVcorrespondenceAnalysis, row.names = FALSE)
-         }, error = function(e) {
-           cat("An error occurred while writing to the file:\n")
-           cat(e$message, "\n")
-         })
-       }
-     } else{
-       # Attempting to write to the CSV file with error handling
-       tryCatch({
-         write.csv(annex_B_df, CSVcorrespondenceAnalysis, row.names = FALSE)
-       }, error = function(e) {
-         cat("An error occurred while writing to the file:\n")
-         cat(e$message, "\n")
-       })
-     }
-   }
-   
+   CsvFileSave(CSVcorrespondenceInventory, annex_A_df)
+   CsvFileSave(CSVcorrespondenceAnalysis, annex_B_df)
+
   # Output list of the two dataframes.
   output <- list(Annexe_A = output_annex_A, Annexe_B = output_annex_B)
   
