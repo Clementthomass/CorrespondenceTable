@@ -150,16 +150,16 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     
     # Print the length of noCorrespondenceA or a message indicating all codes in A are covered
     if (nrow(noCorrespondenceA) > 0) {
-      cat("Number of unmatched source classification codes in A:", nrow(noCorrespondenceA), "\n")
+      stop("Number of unmatched source classification codes in A:", nrow(noCorrespondenceA), "\n")
     } else {
-      cat("All source classification codes in A are covered in the correspondence table.\n")
+      #cat("All source classification codes in A are covered in the correspondence table.\n")
     }
     
     # Print the length of noClassificationA or a message indicating all codes in the correspondence table are covered
     if (nrow(noClassificationA) > 0) {
-      cat("Number of source classification codes in AB not found in A:", nrow(noClassificationA), "\n")
+      stop("Number of source classification codes in AB not found in A:", nrow(noClassificationA), "\n")
     } else {
-      cat("All source classification codes in the correspondence table are covered by A.\n")
+      #cat("All source classification codes in the correspondence table are covered by A.\n")
     }
   }
   

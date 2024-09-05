@@ -32,8 +32,8 @@ result <- analyseCorrespondenceTable(AB =system.file("extdata", "ExempleAnnexe.c
 
 
 # Print the results
-print(result$Annexe_A)
-print(result$Annexe_B)
+print(result$Inventory)
+print(result$Analysis)
 
 ```
 
@@ -58,11 +58,11 @@ result2 <-analyseCorrespondenceTable(AB = (system.file("extdata", "ab_data.csv",
                              A =  (system.file("extdata", "a_data.csv", package = "correspondenceTables")) ,
                              longestAcodeOnly = TRUE ,
                              B = B <- (system.file("extdata", "b_data.csv", package = "correspondenceTables")),
-                             longestBcodeOnly = c(1,5), CSVcorrespondenceInventory = NULL, CSVcorrespondenceAnalysis = NULL)
+                             longestBcodeOnly = TRUE, CSVcorrespondenceInventory = NULL, CSVcorrespondenceAnalysis = NULL)
 
-print(result2$Annexe_A)
+print(result2$Inventory)
 ###for Annexe_A run this code : View(result2$Annexe_A)
-print(result2$Annexe_B)
+print(result2$Analysis)
 ```
 
 
