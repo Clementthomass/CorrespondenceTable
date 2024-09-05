@@ -43,6 +43,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
       }
     }, error = function(e) {
       message("Error in aggregateCorrespondenceTable: ",conditionMessage(e))
+      stop(e)
     })
   
   # Find duplicated combinations of Acode and Bcode in AB
@@ -56,6 +57,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     }, error = function(e) {
       message("Error in aggregateCorrespondenceTable:",conditionMessage(e))
       print(duplicated_rows)
+      stop(e)
     })
   
   
@@ -70,6 +72,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
       }, error = function(e) {
         message("Error in aggregateCorrespondenceTable: ",conditionMessage(e))
         print(missing_code_rows)
+        stop(e)
     })
    
   
@@ -86,6 +89,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
     }
   }, error = function(e) {
     message("Error in aggregateCorrespondenceTable while processing input correspondence table A\n",conditionMessage(e))
+    stop(e)
   })
   
   # Filter rows where there are NA or empty values in the Alevel column
@@ -124,7 +128,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
     if (!all((is.character(a_data$Asuperior) & a_data$Alevel != 1) | (is.na(a_data$Asuperior) & a_data$Alevel == 1))) {
       stop(paste("Asuperior column,", ColumnNames_a[3], "in the source classification table A must be blank for records at level 1."))
     }
-  }, error = function(e) {})
+  }, error = function(e) {
+    stop(e)
+  })
   
   # Initialize the variable to store the current level for A
   mostGranularA <- max(a_data$Alevel)
@@ -209,7 +215,9 @@ check_n_columns(b_data,"Target classification (B)", 3)
     if (!all((is.character(b_data$Bsuperior) & b_data$Blevel != 1) | (is.na(b_data$Bsuperior) & b_data$Blevel == 1))) {
       stop(paste("Bsuperior column,", ColumnNames_b[3], "in the source classification table B must contain characters or be blank for records at level 1."))
     }
-  }, error = function(e) {})
+  }, error = function(e) {
+    stop(e)
+  })
   
   # Initialize the variable to store the current level
   mostGranularB <- max(b_data$Blevel)
@@ -253,6 +261,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
       stop(paste("Acode in the input correspondence table does not exist in source classification table. Offending Acodes:", paste(offending_Acodes, collapse = ", "))),
       error = function(e) {
         cat("Error:", e$message, "\n")
+        stop(e)
       }
     )
   } else if (!all(ab_data$Bcode %in% b_data$Bcode)) {
@@ -261,6 +270,7 @@ check_n_columns(b_data,"Target classification (B)", 3)
       stop(paste("Bcode in the input correspondence table does not exist in target classification table. Offending Bcodes:", paste(offending_Bcodes, collapse = ", "))),
       error = function(e) {
         cat("Error:", e$message, "\n")
+        stop(e)
       }
     )
   }
