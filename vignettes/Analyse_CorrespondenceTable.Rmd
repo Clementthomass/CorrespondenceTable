@@ -55,9 +55,9 @@ longestAcodeOnly and longestBcodeOnly will be set to TRUE here to have only the 
 
 ```{r}
 result2 <-analyseCorrespondenceTable(AB = (system.file("extdata", "ExempleAnnexe.csv", package = "correspondenceTables")),
-                             A =  (system.file("extdata", "ExempleAnnexe_A.csv", package = "correspondenceTables")) ,
+                             A =  system.file("extdata", "ExempleAnnexe_A.csv", package = "correspondenceTables") ,
                              longestAcodeOnly = FALSE ,
-                             B = (system.file("extdata", "ExempleAnnexe_B.csv", package = "correspondenceTables")),
+                             B = system.file("extdata", "ExempleAnnexe_B.csv", package = "correspondenceTables"),
                              longestBcodeOnly = FALSE, CSVcorrespondenceInventory = NULL, CSVcorrespondenceAnalysis = NULL)
 
 print(result2$Inventory)
