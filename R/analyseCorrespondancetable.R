@@ -207,14 +207,14 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     if (nrow(noCorrespondenceB) > 0) {
       cat("Number of unmatched source classification codes in B:", nrow(noCorrespondenceB), "\n")
     } else {
-      cat("All source classification codes in B are covered in the correspondence table.\n")
+      #cat("All source classification codes in B are covered in the correspondence table.\n")
     }
     
     # Print the length of noClassificationB or a message indicating all codes in the correspondence table are covered
     if (nrow(noClassificationB) > 0) {
       cat("Number of source classification codes in AB not found in B:", nrow(noClassificationB), "\n")
     } else {
-      cat("All source classification codes in the correspondence table are covered by B.\n")
+      #cat("All source classification codes in the correspondence table are covered by B.\n")
     }
   }
   
@@ -225,13 +225,23 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
        # Calculate the maximum length of Acode
        maxLengthA <- max(nchar(ab_data$Acode, type = "width"))
        # Filter rows where Acode has the maximum length
-       ab_data$Acode <- ab_data$Acode[nchar(ab_data$Acode, type = "width") == maxLengthA, ]
+       longest_Acode <- ab_data$Acode[nchar(ab_data$Acode, type = "width") == maxLengthA ]
+       if (length(longest_Acode) == nrow(ab_data)) {
+         ab_data$Acode <- longest_Acode
+       } else {
+         ab_data$Acode <- c(longest_Acode, rep("", nrow(ab_data) - length(longest_Acode)))
+       }
     }
      if (longestBcodeOnly == TRUE){
        # Calculate the maximum length of Bcode
        maxLengthB <- max(nchar(ab_data$Bcode, type = "width"))
        # Filter rows where Acode has the maximum length
-       ab_data$Bcode <- ab_data$Bcode[nchar(ab_data$Bcode, type = "width") == maxLengthB, ]
+       longest_Bcode <- ab_data$Bcode[nchar(ab_data$Bcode, type = "width") == maxLengthB ]
+       if (length(longest_Bcode) == nrow(ab_data)) {
+         ab_data$Bcode <- longest_Bcode
+       } else {
+         ab_data$Bcode <- c(longest_Bcode, rep("", nrow(ab_data) - length(longest_Bcode)))
+       }
      }
     
     # Check if there are any valid records after filtering
