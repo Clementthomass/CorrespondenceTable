@@ -19,7 +19,6 @@ CsvFileSave <- function(CSVpath, OutputDF) {
         return(NULL)
       }
     }
-    # OutputDF[] <- lapply(OutputDF, as.character)
     # Try to write the CSV file with error handling
     tryCatch({
       write.csv(OutputDF, CSVpath, row.names = FALSE)
