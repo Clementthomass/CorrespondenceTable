@@ -123,7 +123,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
       if (length(longest_Acode) == nrow(a_data)) {
         a_data$Acode <- longest_Acode
       } else {
-         a_data$Acode <- c(longest_Acode, rep(NA, nrow(a_data) - length(longest_Acode)))
+         a_data$Acode <- c(longest_Acode, rep("", nrow(a_data) - length(longest_Acode)))
       }
       
       # Check if there are any valid records after end position filtering
@@ -188,7 +188,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
       if (length(longest_Bcode) == nrow(b_data)) {
         b_data$Bcode <- longest_Bcode
       } else {
-        b_data$Bcode <- c(longest_Bcode, rep(NA, nrow(b_data) - length(longest_Bcode)))
+        b_data$Bcode <- c(longest_Bcode, rep("", nrow(b_data) - length(longest_Bcode)))
       }
       
       # Check if there are any valid records after end position filtering
