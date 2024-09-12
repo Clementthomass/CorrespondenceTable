@@ -46,13 +46,14 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   # }
     
   ab_data <- testInputTable("Correspondence table (AB)", AB)
-  
+  #ab_data[] <- lapply(ab_data, as.character)
   
   #Check if required number of columns are present in input
   check_n_columns(ab_data,"Correspondence table (AB)", 2)
   
   ColumnNames_ab <- colnames(ab_data)[1:2]
   colnames(ab_data)[1:2] = c("Acode", "Bcode")
+  unused_data_ab <- ab_data[-c(1, 2)]
   
   # # Check if AB file has required columns
   # if (!("Acode" %in% colnames(AB)) || !("Bcode" %in% colnames(AB))) {
@@ -110,6 +111,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     a_data <- testInputTable("Source classification table (A)", A)
     ColumnNames_a <- colnames(A)[1:1]
     colnames(a_data)[1:1] = c("Acode")
+    unused_data_a <- a_data[-1]
     
     # Filter out A records based on longestAcodeOnly, if specified
     if (longestAcodeOnly == TRUE) {
@@ -117,7 +119,12 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
       maxLengthA <- max(nchar(a_data$Acode, type = "width"))
       
       # Filter rows where Acode has the maximum length
-      a_data$Acode <- a_data$Acode[nchar(a_data$Acode, type = "width") == maxLengthA, ]
+      longest_Acode <- a_data$Acode[nchar(a_data$Acode, type = "width") == maxLengthA ]
+      if (length(longest_Acode) == nrow(a_data)) {
+        a_data$Acode <- longest_Acode
+      } else {
+         a_data$Acode <- c(longest_Acode, rep(NA, nrow(a_data) - length(longest_Acode)))
+      }
       
       # Check if there are any valid records after end position filtering
       tryCatch(
@@ -170,14 +177,19 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     b_data <- testInputTable("Target classification table (B)", B)
     ColumnNames_b <- colnames(B)[1:1]
     colnames(b_data)[1:1] = c("Bcode")
+    unused_data_b <- b_data[-1]
     
     # Filter out B records based on longestBcodeOnly, if specified
     if (longestBcodeOnly == TRUE) {
       # Calculate the maximum length of Bcode
       maxLengthB <- max(nchar(b_data$Bcode, type = "width"))
-      
-      # Filter rows where Acode has the maximum length
-      b_data$Bcode <- b_data$Bcode[nchar(b_data$Bcode, type = "width") == maxLengthB, ]
+      # Filter rows where Bcode has the maximum length
+      longest_Bcode <- b_data$Bcode[nchar(b_data$Bcode, type = "width") == maxLengthB ]
+      if (length(longest_Bcode) == nrow(b_data)) {
+        b_data$Bcode <- longest_Bcode
+      } else {
+        b_data$Bcode <- c(longest_Bcode, rep(NA, nrow(b_data) - length(longest_Bcode)))
+      }
       
       # Check if there are any valid records after end position filtering
       tryCatch(
@@ -218,7 +230,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     }
   }
   
-  # Filter AB data based on longestAcodeOnly and longestBcodeOnly, if specified
+  # Filter B data based on longestAcodeOnly and longestBcodeOnly, if specified
   
   if (longestAcodeOnly == TRUE | longestBcodeOnly == TRUE) {
     if (longestAcodeOnly == TRUE) {
@@ -235,7 +247,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
      if (longestBcodeOnly == TRUE){
        # Calculate the maximum length of Bcode
        maxLengthB <- max(nchar(ab_data$Bcode, type = "width"))
-       # Filter rows where Acode has the maximum length
+       # Filter rows where Bcode has the maximum length
        longest_Bcode <- ab_data$Bcode[nchar(ab_data$Bcode, type = "width") == maxLengthB ]
        if (length(longest_Bcode) == nrow(ab_data)) {
          ab_data$Bcode <- longest_Bcode
@@ -350,24 +362,40 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   # store annex on variable to make table 
   output_Inventory <- Inventory
   output_Analysis <- Analysis
+
   
   Inventory_df <- as.data.frame(output_Inventory)
+  
   Inventory_df$Component <- as.character(Inventory_df$Component)
   Inventory_df$CorrespondenceType <- as.character(Inventory_df$CorrespondenceType)
-  Inventory_df$SourcePositions <- as.character(Inventory_df$SourcePositions)
-  Inventory_df$TargetPositions <- as.character(Inventory_df$TargetPositions)
+  #Inventory_df$SourcePositions <- as.character(Inventory_df$SourcePositions)
+  Inventory_df$SourcePositions <- sapply(Inventory_df$SourcePositions, function(x) paste(x, collapse = ", "))
+  #Inventory_df$TargetPositions <- as.character(Inventory_df$TargetPositions)
+  Inventory_df$TargetPositions <- sapply(Inventory_df$TargetPositions, function(x) paste(x, collapse = ", "))
   Inventory_df$nSourcePositions <- as.numeric(Inventory_df$nSourcePositions)
   Inventory_df$nTargetPositions <- as.numeric(Inventory_df$nTargetPositions)
-  Analysis_df <- as.data.frame(output_Analysis)
   
-  # Take the user's CSV file name to create CSV files
-  #if (!is.null(input_file_path)) {
- #  if (!grepl("\\.csv$", AB)) {
- #    base_file_name <- tools::file_path_sans_ext(tools::file_path_sans_ext(basename(AB)))
- # } else {
-    # Generate a unique base file name (based on the timestamp)
+  Analysis_df <- as.data.frame(output_Analysis)
+  Analysis_df$index <- seq_len(nrow(Analysis_df))
+  unused_data_ab$index <- seq_len(nrow(unused_data_ab))
+  Analysis_df <- merge(Analysis_df, unused_data_ab, by = "index", all = TRUE)
+  Analysis_df$index <- NULL
+  
+  if (!is.null(A)) {
+    Analysis_df$index <- seq_len(nrow(Analysis_df))
+    unused_data_a$index <- seq_len(nrow(unused_data_a))
+    Analysis_df <- merge(Analysis_df, unused_data_a, by = "index", all = TRUE)
+    Analysis_df$index <- NULL
+  }
+  if (!is.null(B)) {
+    Analysis_df$index <- seq_len(nrow(Analysis_df))
+    unused_data_b$index <- seq_len(nrow(unused_data_b))
+    Analysis_df <- merge(Analysis_df, unused_data_b, by = "index", all = TRUE)
+    Analysis_df$index <- NULL
+  }
+  
    base_file_name <- paste0("correspondence_analysis_", format(Sys.time(), "%Y%m%d%H%M%S"))
-  # }
+
    
    CsvFileSave(CSVcorrespondenceInventory, Inventory_df)
    CsvFileSave(CSVcorrespondenceAnalysis, Analysis_df)
@@ -376,7 +404,6 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   output <- list(Inventory = output_Inventory, Analysis = output_Analysis)
   
   return(output)
-  
 }
 
 
