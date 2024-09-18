@@ -49,7 +49,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   #ab_data[] <- lapply(ab_data, as.character)
   
   #Check if required number of columns are present in input
-  check_n_columns(ab_data,"Correspondence table (AB)", 2)
+  #check_n_columns(ab_data,"Correspondence table (AB)", 2)
   
   ColumnNames_ab <- colnames(ab_data)[1:2]
   colnames(ab_data)[1:2] = c("Acode", "Bcode")
