@@ -401,7 +401,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
    CsvFileSave(CSVcorrespondenceAnalysis, Analysis_df)
 
   # Output list of the two dataframes.
-  output <- list(Inventory = output_Inventory, Analysis = output_Analysis)
+  output <- list(Inventory = Inventory_df, Analysis =  Analysis_df)
   
   return(output)
 }
