@@ -53,7 +53,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   
   ColumnNames_ab <- colnames(ab_data)[1:2]
   colnames(ab_data)[1:2] = c("Acode", "Bcode")
-  unused_data_ab <- ab_data[-c(1, 2)]
+  unused_data_ab <- ab_data
   
   # # Check if AB file has required columns
   # if (!("Acode" %in% colnames(AB)) || !("Bcode" %in% colnames(AB))) {
@@ -111,7 +111,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     a_data <- testInputTable("Source classification table (A)", A)
     ColumnNames_a <- colnames(A)[1:1]
     colnames(a_data)[1:1] = c("Acode")
-    unused_data_a <- a_data[-1]
+    unused_data_a <- a_data
     
     # Filter out A records based on longestAcodeOnly, if specified
     if (longestAcodeOnly == TRUE) {
@@ -177,7 +177,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     b_data <- testInputTable("Target classification table (B)", B)
     ColumnNames_b <- colnames(B)[1:1]
     colnames(b_data)[1:1] = c("Bcode")
-    unused_data_b <- b_data[-1]
+    unused_data_b <- b_data
     
     # Filter out B records based on longestBcodeOnly, if specified
     if (longestBcodeOnly == TRUE) {
@@ -358,7 +358,7 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     paste(unique(Analysis[Analysis$ClassD == d_code, "ClassC"]), collapse = ", ")
   })
   
-  colnames(Analysis)[1:2] = ColumnNames_ab[1:2]
+  colnames(Analysis)[1:2] = c("Acode", "Bcode")
   # store annex on variable to make table 
   output_Inventory <- Inventory
   output_Analysis <- Analysis
@@ -376,27 +376,18 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   Inventory_df$nTargetPositions <- as.numeric(Inventory_df$nTargetPositions)
   
   Analysis_df <- as.data.frame(output_Analysis)
-  Analysis_df$index <- seq_len(nrow(Analysis_df))
-  unused_data_ab$index <- seq_len(nrow(unused_data_ab))
-  Analysis_df <- merge(Analysis_df, unused_data_ab, by = "index", all = TRUE)
-  Analysis_df$index <- NULL
-  
+  Analysis_df <- merge(Analysis_df, unused_data_ab, by = c("Acode", "Bcode"), all = F)
+
   if (!is.null(A)) {
-    Analysis_df$index <- seq_len(nrow(Analysis_df))
-    unused_data_a$index <- seq_len(nrow(unused_data_a))
-    Analysis_df <- merge(Analysis_df, unused_data_a, by = "index", all = TRUE)
-    Analysis_df$index <- NULL
+    Analysis_df <- merge(Analysis_df, unused_data_a, by = "Acode", all = F)
   }
   if (!is.null(B)) {
-    Analysis_df$index <- seq_len(nrow(Analysis_df))
-    unused_data_b$index <- seq_len(nrow(unused_data_b))
-    Analysis_df <- merge(Analysis_df, unused_data_b, by = "index", all = TRUE)
-    Analysis_df$index <- NULL
+   Analysis_df <- merge(Analysis_df, unused_data_b, by = "Bcode", all = F)
   }
   
+   colnames(Analysis_df)[1:2] = ColumnNames_ab[1:2]
    base_file_name <- paste0("correspondence_analysis_", format(Sys.time(), "%Y%m%d%H%M%S"))
 
-   
    CsvFileSave(CSVcorrespondenceInventory, Inventory_df)
    CsvFileSave(CSVcorrespondenceAnalysis, Analysis_df)
 
