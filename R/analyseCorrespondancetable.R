@@ -358,11 +358,13 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     paste(unique(Analysis[Analysis$ClassD == d_code, "ClassC"]), collapse = ", ")
   })
   
+  
+  
   colnames(Analysis)[1:2] = c("Acode", "Bcode")
   # store annex on variable to make table 
   output_Inventory <- Inventory
   output_Analysis <- Analysis
-
+ 
   
   Inventory_df <- as.data.frame(output_Inventory)
   
@@ -377,13 +379,16 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   
   Analysis_df <- as.data.frame(output_Analysis)
   Analysis_df <- merge(Analysis_df, unused_data_ab, by = c("Acode", "Bcode"), all = F)
-
+  
+  if (!is.null(B)) {
+    Analysis_df <- merge(Analysis_df, unused_data_b, by = "Bcode", all = F)
+  }
+ 
   if (!is.null(A)) {
     Analysis_df <- merge(Analysis_df, unused_data_a, by = "Acode", all = F)
   }
-  if (!is.null(B)) {
-   Analysis_df <- merge(Analysis_df, unused_data_b, by = "Bcode", all = F)
-  }
+ 
+  Analysis_df <- Analysis_df[, c("Acode", "Bcode", setdiff(names(Analysis_df), c("Acode", "Bcode")))]
   
    colnames(Analysis_df)[1:2] = ColumnNames_ab[1:2]
    base_file_name <- paste0("correspondence_analysis_", format(Sys.time(), "%Y%m%d%H%M%S"))
