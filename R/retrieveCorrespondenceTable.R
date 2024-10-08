@@ -12,8 +12,7 @@
 #' The ID_table can be obtained by utilizing the "correspondenceList()" function.
 #' @param language Refers to the specific language used for providing label, include and exclude information in the selected correspondence table. 
 #' By default is set to "en". This is an optional argument.
-#' @param CSVout The valid values are \code{FALSE} or \code{TRUE}. In both cases the correspondence table as an R object. 
-#' If output should be saved as a csv file, the argument should be set as \code{TRUE}. By default, no csv file is produced. 
+#' @param CSVout The valid value is a valid path to a csv file including file name and extension. By default, no csv file is produced, \code{NULL} 
 #' @param showQuery The valid values are \code{FALSE} or \code{TRUE}. In both cases the correspondence table as an R object. 
 #' If needed to view the SPARQL query used, the argument should be set as \code{TRUE}. By default, no SPARQL query is produced.
 #' @param localData this parameter allow the user to retrieve static data from the package in order to avoid any issues from the api
@@ -49,7 +48,7 @@
 #'     }
  
 
-retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "en", CSVout = FALSE, showQuery = TRUE) {
+retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "en", CSVout = NULL, showQuery = TRUE) {
   # Check the useLocalDataForVignettes option
   if (getOption("useLocalDataForVignettes", FALSE)) {
     localDataPath <- system.file("extdata", paste0(ID_table, "_", language, ".csv"), package = "correspondenceTables")
@@ -141,15 +140,18 @@ retrieveCorrespondenceTable = function(prefix, endpoint, ID_table, language = "e
     data <- as.data.frame(data)
     
     # Save results as CSV and show where it was stored
-    if (CSVout == TRUE) {
-      name_csv = paste0(ID_table,"_",language,"_table.csv")
-      write.csv(data, file= name_csv, row.names=FALSE)
-      message(paste0("The correspondence table was saved in ", getwd(), name_csv))
-    } else if (is.character(CSVout)) {
-      # if user provide a csv file data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAWElEQVR42mNgGPTAxsZmJsVqQApgmGw1yApwKcQiT7phRBuCzzCSDSHGMKINIeDNmWQlA2IigKJwIssQkHdINgxfmBBtGDEBS3KCxBc7pMQgMYE5c/AXPwAwSX4lV3pTWwAAAABJRU5ErkJggg==
-      write.csv(data, file = CSVout, row.names = FALSE)
-      message(paste0("The table was saved in ", getwd(), CSVout))
-    }
+    # if (CSVout == TRUE) {
+    #   name_csv = paste0(ID_table,"_",language,"_table.csv")
+    #   write.csv(data, file= name_csv, row.names=FALSE)
+    #   message(paste0("The correspondence table was saved in ", getwd(), name_csv))
+    # } else if (is.character(CSVout)) {
+    #   # if user provide a csv file data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAWElEQVR42mNgGPTAxsZmJsVqQApgmGw1yApwKcQiT7phRBuCzzCSDSHGMKINIeDNmWQlA2IigKJwIssQkHdINgxfmBBtGDEBS3KCxBc7pMQgMYE5c/AXPwAwSX4lV3pTWwAAAABJRU5ErkJggg==
+    #   write.csv(data, file = CSVout, row.names = FALSE)
+    #   message(paste0("The table was saved in ", getwd(), CSVout))
+    # }
+    CsvFileSave(CSVout, data )
+    
+    
   }
   
   if (showQuery) {
