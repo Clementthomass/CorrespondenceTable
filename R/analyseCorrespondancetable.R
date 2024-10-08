@@ -157,14 +157,16 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     
     # Print the length of noCorrespondenceA or a message indicating all codes in A are covered
     if (nrow(noCorrespondenceA) > 0) {
-      stop("Number of unmatched source classification codes in A:", nrow(noCorrespondenceA), "\n")
+      message("Warning:Number of unmatched source classification codes in A:", nrow(noCorrespondenceA), "\n")
+      print(noCorrespondenceA)
     } else {
       #cat("All source classification codes in A are covered in the correspondence table.\n")
     }
     
     # Print the length of noClassificationA or a message indicating all codes in the correspondence table are covered
     if (nrow(noClassificationA) > 0) {
-      stop("Number of source classification codes in AB not found in A:", nrow(noClassificationA), "\n")
+      message("Warning:Number of source classification codes in AB not found in A:", nrow(noClassificationA), "\n")
+      print(noClassificationA)
     } else {
       #cat("All source classification codes in the correspondence table are covered by A.\n")
     }
@@ -217,14 +219,16 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     
     # Print the length of noCorrespondenceB or a message indicating all codes in B are covered
     if (nrow(noCorrespondenceB) > 0) {
-      cat("Number of unmatched source classification codes in B:", nrow(noCorrespondenceB), "\n")
+      message("Warning:Number of unmatched source classification codes in B:", nrow(noCorrespondenceB), "\n")
+      print(noCorrespondenceB)
     } else {
       #cat("All source classification codes in B are covered in the correspondence table.\n")
     }
     
     # Print the length of noClassificationB or a message indicating all codes in the correspondence table are covered
     if (nrow(noClassificationB) > 0) {
-      cat("Number of source classification codes in AB not found in B:", nrow(noClassificationB), "\n")
+      message("Warning: Number of source classification codes in AB not found in B:", nrow(noClassificationB), "\n")
+      print(noCorrespondenceB)
     } else {
       #cat("All source classification codes in the correspondence table are covered by B.\n")
     }
