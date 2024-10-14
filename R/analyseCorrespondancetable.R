@@ -72,7 +72,6 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
       message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
     })
   
-  
   # Filter rows where Acode or Bcode is missing in the AB data
   missing_code_rows <- ab_data[is.na(ab_data$Acode) | ab_data$Acode == "" | is.na(ab_data$Bcode) | ab_data$Bcode == "", ]
   tryCatch(
@@ -91,27 +90,86 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   #   stop("No valid records found in the AB file.")
   # }
   
-  # Check uniqueness of code pairs in AB file
-  duplicate_pairs <- duplicated(ab_data[c("Acode", "Bcode")]) | duplicated(ab_data[c("Acode", "Bcode")], fromLast = TRUE)
+  # Find duplicated combinations of Acode and Bcode in AB
+  duplicate_pairs <- ab_data[duplicated(ab_data[c("Acode", "Bcode")]), c("Acode", "Bcode")]
   tryCatch(
     {
-  if (any(duplicate_pairs)) {
-    first_duplicate <- ab_data[duplicate_pairs, c("Acode", "Bcode")][1, ]
-    stop(paste("Duplicate code pair found in AB file:", first_duplicate$Acode, "-", first_duplicate$Bcode))
+      # Check for duplicate combinations of Acode and Bcode
+      if (nrow(duplicate_pairs) > 0) {
+        stop("Please remove duplicate(s) combinations of Acode and Bcode found in AB file.")
+      }
+    }, error = function(e) {
+      message("Error in analyseCorrespondenceTable:",conditionMessage(e))
+      print(duplicate_pairs)
+      stop(e)
+    })
+  
+  # Filter AB data based on longestAcodeOnly and longestBcodeOnly, if specified
+  
+  if (longestAcodeOnly == TRUE | longestBcodeOnly == TRUE) {
+    if (longestAcodeOnly == TRUE) {
+      # Calculate the maximum length of Acode
+      maxLengthA <- max(nchar(ab_data$Acode, type = "width"))
+      # Filter rows where Acode has the maximum length
+      longest_Acode <- ab_data$Acode[nchar(ab_data$Acode, type = "width") == maxLengthA ]
+      if (length(longest_Acode) == nrow(ab_data)) {
+        ab_data$Acode <- longest_Acode
+      } else {
+        ab_data$Acode <- c(longest_Acode, rep("", nrow(ab_data) - length(longest_Acode)))
+      }
     }
-  },error = function(e) {
-    message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
-  })
-
+    if (longestBcodeOnly == TRUE){
+      # Calculate the maximum length of Bcode
+      maxLengthB <- max(nchar(ab_data$Bcode, type = "width"))
+      # Filter rows where Bcode has the maximum length
+      longest_Bcode <- ab_data$Bcode[nchar(ab_data$Bcode, type = "width") == maxLengthB ]
+      if (length(longest_Bcode) == nrow(ab_data)) {
+        ab_data$Bcode <- longest_Bcode
+      } else {
+        ab_data$Bcode <- c(longest_Bcode, rep("", nrow(ab_data) - length(longest_Bcode)))
+      }
+    }
+    
+    # Check if there are any valid records after filtering
+    if (nrow(ab_data) == 0) {
+      stop("No valid records found in the AB file after applying longestAcodeOnly and/or longestBcodeOnly filters.")
+    }
+    if (length(ab_data$Acode) != length(ab_data$Bcode)) {
+      stop("Invalid records found in the AB file after applying the longestAcodeOnly and/or longestBcodeOnly filters. Acode and Bcode have different number of rows")
+    }
+  }
   
   # Read A file if provided
   if (!is.null(A)) {
     # a_data <- read.csv(A, header = TRUE)
     
     a_data <- testInputTable("Source classification table (A)", A)
+    
     ColumnNames_a <- colnames(A)[1:1]
     colnames(a_data)[1:1] = c("Acode")
     unused_data_a <- a_data
+    
+    # Check if there are any records
+    tryCatch(
+      {
+        if (nrow(a_data) == 0) {
+          stop("No valid records found in the input table ource classification table (A).")
+        }
+      }, error = function(e) {
+        message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
+      })
+    
+    # Check uniqueness of A codes
+    duplicate_a_codes <- duplicated(a_data$Acode) | duplicated(a_data$Acode, fromLast = TRUE)
+    tryCatch(
+      {
+        if (nrow(duplicate_a_codes) > 0) {
+          stop("Duplicate Acode(s) found in A file.")
+        }
+      },error = function(e) {
+        message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
+        print(duplicate_a_codes)
+      })
     
     # Filter out A records based on longestAcodeOnly, if specified
     if (longestAcodeOnly == TRUE) {
@@ -123,52 +181,36 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
       if (length(longest_Acode) == nrow(a_data)) {
         a_data$Acode <- longest_Acode
       } else {
-         a_data$Acode <- c(longest_Acode, rep("", nrow(a_data) - length(longest_Acode)))
+        a_data$Acode <- c(longest_Acode, rep("", nrow(a_data) - length(longest_Acode)))
       }
       
       # Check if there are any valid records after end position filtering
       tryCatch(
         {
-      if (nrow(a_data) == 0) {
-        stop("No valid records found in the A file after applying end position filter.")
-      }
-          },error = function(e) {
-        message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
-            stop(e)
-      })
+          if (nrow(a_data) == 0) {
+            stop("No valid records found in the A file after applying end position filter.")
+          }
+        },error = function(e) {
+          message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
+          stop(e)
+        })
     }
     
-    # Check uniqueness of A codes
-    duplicate_a_codes <- duplicated(a_data$Acode) | duplicated(a_data$Acode, fromLast = TRUE)
-    tryCatch(
-      {
-    if (any(duplicate_a_codes)) {
-      first_duplicate <- a_data[duplicate_a_codes, "Acode"][1]
-      stop(paste("Duplicate Acode found in A file:", first_duplicate))
-    }
-      },error = function(e) {
-        message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
-      })
-    
-    # Find unmatched source classification codes
+    # Find unmatched source classification codes for A
     unmatched_codes_A <- setdiff(a_data$Acode, ab_data$Acode)
     noCorrespondenceA <- a_data[a_data$Acode %in% unmatched_codes_A, ]
     noClassificationA <- ab_data[ab_data$Acode %in% unmatched_codes_A, ]
     
-    # Print the length of noCorrespondenceA or a message indicating all codes in A are covered
+    # Check if all codes in A are covered
     if (nrow(noCorrespondenceA) > 0) {
-      message("Warning:Number of unmatched source classification codes in A:", nrow(noCorrespondenceA), "\n")
+      message("Warning:Number of unmatched source classification codes in A:\n")
       print(noCorrespondenceA)
-    } else {
-      #cat("All source classification codes in A are covered in the correspondence table.\n")
-    }
+    } 
     
-    # Print the length of noClassificationA or a message indicating all codes in the correspondence table are covered
+    # Check if all codes in the correspondence table are covered
     if (nrow(noClassificationA) > 0) {
-      message("Warning:Number of source classification codes in AB not found in A:", nrow(noClassificationA), "\n")
+      message("Warning:Number of source classification codes in AB not found in A:\n")
       print(noClassificationA)
-    } else {
-      #cat("All source classification codes in the correspondence table are covered by A.\n")
     }
   }
   
@@ -181,10 +223,33 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     colnames(b_data)[1:1] = c("Bcode")
     unused_data_b <- b_data
     
+    # Check if there are any records
+    tryCatch(
+      {
+        if (nrow(b_data) == 0) {
+          stop("No valid records found in the input table ource classification table (B).")
+        }
+      }, error = function(e) {
+        message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
+      })
+    
+    # Check uniqueness of B codes
+    duplicate_b_codes <- duplicated(b_data$Bcode) | duplicated(b_data$Bcode, fromLast = TRUE)
+    tryCatch(
+      {
+        if (nrow(duplicate_b_codes) > 0) {
+          stop("Duplicate Bcode(s) found in B file.")
+        }
+      },error = function(e) {
+        message("Error in analyseCorrespondenceTable: ",conditionMessage(e))
+        print(duplicate_b_codes)
+      })
+    
     # Filter out B records based on longestBcodeOnly, if specified
     if (longestBcodeOnly == TRUE) {
       # Calculate the maximum length of Bcode
       maxLengthB <- max(nchar(b_data$Bcode, type = "width"))
+      
       # Filter rows where Bcode has the maximum length
       longest_Bcode <- b_data$Bcode[nchar(b_data$Bcode, type = "width") == maxLengthB ]
       if (length(longest_Bcode) == nrow(b_data)) {
@@ -205,69 +270,25 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
         })
     }
     
-    # Check uniqueness of B codes
-    duplicate_b_codes <- duplicated(b_data$Bcode) | duplicated(b_data$Bcode, fromLast = TRUE)
-    if (any(duplicate_b_codes)) {
-      first_duplicate <- b_data[duplicate_b_codes, "Bcode"][1]
-      stop(paste("Duplicate Bcode found in B file:", first_duplicate))
-    }
-    
     # Find unmatched source classification codes for B
     unmatched_codes_B <- setdiff(b_data$Bcode, ab_data$Bcode)
     noCorrespondenceB <- b_data[b_data$Bcode %in% unmatched_codes_B, ]
     noClassificationB <- ab_data[ab_data$Bcode %in% unmatched_codes_B, ]
     
-    # Print the length of noCorrespondenceB or a message indicating all codes in B are covered
+    ## Check if all codes in B are covered
     if (nrow(noCorrespondenceB) > 0) {
-      message("Warning:Number of unmatched source classification codes in B:", nrow(noCorrespondenceB), "\n")
+      message("Warning:Number of unmatched source classification codes in B:\n")
       print(noCorrespondenceB)
-    } else {
-      #cat("All source classification codes in B are covered in the correspondence table.\n")
-    }
+    } 
     
-    # Print the length of noClassificationB or a message indicating all codes in the correspondence table are covered
+    # Check if all codes in the correspondence table are covered
     if (nrow(noClassificationB) > 0) {
-      message("Warning: Number of source classification codes in AB not found in B:", nrow(noClassificationB), "\n")
-      print(noCorrespondenceB)
-    } else {
-      #cat("All source classification codes in the correspondence table are covered by B.\n")
-    }
+      message("Warning: Number of source classification codes in AB not found in B:\n")
+      print(noClassificationB)
+    } 
   }
   
-  # Filter B data based on longestAcodeOnly and longestBcodeOnly, if specified
-  
-  if (longestAcodeOnly == TRUE | longestBcodeOnly == TRUE) {
-    if (longestAcodeOnly == TRUE) {
-       # Calculate the maximum length of Acode
-       maxLengthA <- max(nchar(ab_data$Acode, type = "width"))
-       # Filter rows where Acode has the maximum length
-       longest_Acode <- ab_data$Acode[nchar(ab_data$Acode, type = "width") == maxLengthA ]
-       if (length(longest_Acode) == nrow(ab_data)) {
-         ab_data$Acode <- longest_Acode
-       } else {
-         ab_data$Acode <- c(longest_Acode, rep("", nrow(ab_data) - length(longest_Acode)))
-       }
-    }
-     if (longestBcodeOnly == TRUE){
-       # Calculate the maximum length of Bcode
-       maxLengthB <- max(nchar(ab_data$Bcode, type = "width"))
-       # Filter rows where Bcode has the maximum length
-       longest_Bcode <- ab_data$Bcode[nchar(ab_data$Bcode, type = "width") == maxLengthB ]
-       if (length(longest_Bcode) == nrow(ab_data)) {
-         ab_data$Bcode <- longest_Bcode
-       } else {
-         ab_data$Bcode <- c(longest_Bcode, rep("", nrow(ab_data) - length(longest_Bcode)))
-       }
-     }
-    
-    # Check if there are any valid records after filtering
-    if (nrow(ab_data) == 0) {
-      stop("No valid records found in the AB file after applying longestAcodeOnly and/or longestBcodeOnly filters.")
-    }
-    if (length(ab_data$Acode) != length(ab_data$Bcode)) {
-      stop("Invalid records found in the AB file after applying the longestAcodeOnly and/or longestBcodeOnly filters. Acode and Bcode have different number of rows")
-    }
-  }
+
     
   #bipartitePart
   # create the bipartite graph 
