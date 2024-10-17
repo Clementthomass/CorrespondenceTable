@@ -14,7 +14,7 @@
 #' By default is set to \code{"ALL"}. This is an optional argument.  
 #' @param language Refers to the specific language used for providing label, include and exclude information in the selected classification table. 
 #' By default is set to "en". This is an optional argument.
-#' @param CSVout The valid values are \code{FALSE} or \code{TRUE}. In both cases the classification table as an R object. 
+#' @param CSVout The valid value is a valid path to a csv file including file name and extension. By default, no csv file is produced, \code{NULL}  
 #' If output should be saved as a csv file, the argument should be set as \code{TRUE}. By default, no csv file is produced. 
 #' @param showQuery The valid values are \code{FALSE} or \code{TRUE}. In both cases the classification table as an R object. 
 #' If needed to view the SPARQL query used, the argument should be set as \code{TRUE}. By default, no SPARQL query is produced.
@@ -48,7 +48,7 @@
 #'     
 
 
-retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = "ALL", language = "en", CSVout = FALSE, showQuery = TRUE) {
+retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = "ALL", language = "en", CSVout = NULL, showQuery = TRUE) {
   # Check the useLocalDataForVignettes option
   if (getOption("useLocalDataForVignettes", FALSE)) {
     localDataPath <- system.file("extdata", paste0(prefix, "_", language, ".csv"), package = "correspondenceTables")
@@ -134,8 +134,13 @@ retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = 
     }
     
   }
+  tryCatch({
   response = httr::POST(url = source, accept("text/csv"), body = list(query = SPARQL.query), encode = "form")
   data = data.frame(content(response, show_col_types = FALSE))
+  }, error = function(e) {
+    stop(message("Error occurred during SPARQL query execution: ", e$message))
+    return(NULL)
+  })
   
   #keep only plainLiteral if more than one datatype // 
   #FAO - "http://www.w3.org/2001/XMLSchema#string"
@@ -161,15 +166,16 @@ retrieveClassificationTable = function(prefix, endpoint, conceptScheme, level = 
   data <- as.data.frame(data)
   
   # Save results as CSV and show where it was stored
-  if (CSVout == TRUE) {
-    name_csv = paste0(prefix,"_", language, ".csv")
-    write.csv(data, file= name_csv, row.names=FALSE)
-    message(paste0("The table was saved in ", getwd(), name_csv))
-  } else if (is.character(CSVout)) {
-    # if user provide a csv file 
-    write.csv(data, file = CSVout, row.names = FALSE)
-    message(paste0("The table was saved in ", getwd(), CSVout))
-  }
+  # if (CSVout == TRUE) {
+  #   name_csv = paste0(prefix,"_", language, ".csv")
+  #   write.csv(data, file= name_csv, row.names=FALSE)
+  #   message(paste0("The table was saved in ", getwd(), name_csv))
+  # } else if (is.character(CSVout)) {
+  #   # if user provide a csv file 
+  #   write.csv(data, file = CSVout, row.names = FALSE)
+  #   message(paste0("The table was saved in ", getwd(), CSVout))
+  # }
+  CsvFileSave(CSVout, data )
   
   if (showQuery) {
     result=list()
