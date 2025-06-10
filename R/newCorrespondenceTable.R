@@ -1,8 +1,5 @@
-#' @title Ex novo creation of candidate correspondence tables between two classifications via pivot tables
-#' @description Creation of a candidate correspondence table between two classifications, A and B, when there are
-#'   correspondence tables leading from the first classification to the second one via \eqn{k} intermediate pivot
-#'   classifications \eqn{C_1, \ldots, C_k}.
-#'   The correspondence tables leading from A to B are A:\eqn{C_1}, \{\eqn{C_i}:\eqn{C_{i+1}}: \eqn{1 \le i \le k -1}\}, B:\eqn{C_k}.
+#' @title Correspondence table creation
+#' @description Create a candidate correspondence table between two classifications via pivots
 #' @param Tables A string of type character containing the name of a csv file which contains the names of the files that
 #'   contain the classifications and the intermediate correspondence tables OR a list of vectors with the names of the dataframes
 #'   classifications and the intermediate correspondence tables (see "Details" below).
@@ -1956,7 +1953,9 @@ newCorrespondenceTable <- function(Tables, CSVout = NULL, Reference = "none", Mi
 
     col_multiple = numeric(0)
     for (nl in 1:num_link){
-      col_multiple = unique(c(col_multiple, grep(colnames(correspondenceAB)[1 + nl], colnames(correspondenceAB), value = T)))
+      matches <- grep(colnames(correspondenceAB)[1 + nl], colnames(correspondenceAB), value = TRUE)
+      col_multiple <- unique(c(col_multiple, matches))
+      
     }
     max_col = num_link + 2
 
@@ -1968,8 +1967,13 @@ newCorrespondenceTable <- function(Tables, CSVout = NULL, Reference = "none", Mi
     uniqueAB$id_to_use = 1:nrow(uniqueAB)
 
     correspondenceAB = merge(correspondenceAB, uniqueAB, by = colnames(correspondenceAB)[c(1,max_col)], all.x = TRUE)[, union(names(correspondenceAB), names(uniqueAB))]
-    col_link = grep("id_to_use", colnames(correspondenceAB), value = T)
-
+    matches <- grep("id_to_use", colnames(correspondenceAB), value = TRUE)
+    if (length(matches) == 1) {
+      col_link <- matches
+    } else {
+      stop("The column 'id_to_use' is not uniquely identified in correspondenceAB.")
+    }
+    
     ### new but probably slower
     if (Redundancy_trim == TRUE){
       x_temp = split(correspondenceAB[which(correspondenceAB$Redundancy == 1), col_multiple], correspondenceAB[which(correspondenceAB$Redundancy == 1), col_link])

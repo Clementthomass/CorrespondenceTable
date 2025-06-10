@@ -1,17 +1,7 @@
-#' @title ClassificationQC performs quality control checks on statistical classifications
-#' @description The `classificationQC()` function performs quality control checks on statistical classifications, ensuring their integrity and accuracy. It checks compliance with various structural rules and provides informative error messages for violations. This function requires input files containing code and label information for each classification position and verifies the following criteria:
-#' - Formatting requirements
-#' - Uniqueness of codes
-#' - Fullness of hierarchy
-#' - Uniqueness of labels
-#' - Hierarchical label dependencies
-#' - Single child code compliance
-#' - Sequencing of codes
-#'
-#' The `classificationQC()` function generates a QC output data frame with the classification data, hierarchical levels, code segments, and test outcomes. Additionally, it allows exporting the output to a CSV file.
-#'
+#' @title Perform quality control on a classification
+#' @description Perform quality control on a classification
 #' @param classification Refers to a classification in a CSV file structured with two columns: "codes" and "labels." If the classification is provided as a CSV file. This argument is mandatory.
-#' @param lengthsfile Refers to a CSV file (one record per hierarchical level) containing the initial and last positions of the segment of the code specific to that level. The number of lines in this CSV file implicitly defines the number of hierarchical levels of the classification. This argument is mandatory.
+#' @param lengthsFile Refers to a CSV file (one record per hierarchical level) containing the initial and last positions of the segment of the code specific to that level. The number of lines in this CSV file implicitly defines the number of hierarchical levels of the classification. This argument is mandatory.
 #' @param fullHierarchy It is used to test the fullness of hierarchy. If the parameter \code{fullHierarchy} is set to \code{FALSE}, the function will check that every position at a lower level than 1 should have parents all the way up to level 1. If set to \code{TRUE}, it will additionally check that any position at a higher level than k should have children all the way down to level k.
 #' @param labelUniqueness It is used to test that positions at the same hierarchical level have unique labels. If set to \code{TRUE}, the compliance is checked, and positions with duplicate labels are marked as 1 in the "duplicateLabel" column, while positions with unique labels are marked as 0.
 #' @param labelHierarchy It is used to ensure that the hierarchical structure of labels is respected. When set to \code{TRUE}, the function will check that single children have a label identical to the label of their parent and that if a position has a label identical to the label of one of its children, then that position should only have a single child.
@@ -21,6 +11,7 @@
 #' @importFrom  stringr str_squish 
 #' @importFrom  stringr str_sub
 #' @importFrom  tools file_ext
+#' @importFrom stats na.omit
 #' @export
 #' @return
 #'
@@ -60,11 +51,24 @@
 #'
 #' @examples 
 #' {
-#' # classification <- system.file("extdata", "Nace2.csv", package = "correspondenceTables")
-#'   
-#'   lengthsFile <- system.file("extdata", "lenghtsNace.csv", package = "correspondenceTables")
-#'   
-#'   Output <- classificationQC(classification = system.file("extdata", "Nace2.csv", package = "correspondenceTables") , lengthsFile = system.file("extdata", "lenghtsNace.csv", package = "correspondenceTables"), fullHierarchy = TRUE, labelUniqueness  = TRUE, labelHierarchy = TRUE, singleChildCode = NULL, sequencing = NULL, CSVout = system.file("extdata", "QC_Output.csv", package = "correspondenceTables")) 
+#'   classification <- system.file("extdata", "Nace2.csv",
+#'     package = "correspondenceTables")
+#'   lengthsFile <- system.file("extdata", "lenghtsNace.csv",
+#'     package = "correspondenceTables")
+#'   CSVout <- system.file("extdata", "QC_Output.csv",
+#'     package = "correspondenceTables")
+#'
+#'   Output <- classificationQC(
+#'     classification = classification,
+#'     lengthsFile = lengthsFile,
+#'     fullHierarchy = TRUE,
+#'     labelUniqueness  = TRUE,
+#'     labelHierarchy = TRUE,
+#'     singleChildCode = NULL,
+#'     sequencing = NULL,
+#'     CSVout = CSVout
+#'   )
+#' 
 #'   print(Output$QC_output)
 #'   print(Output$QC_noLevels)
 #'   print(Output$QC_orphan)
@@ -73,12 +77,11 @@
 #'   print(Output$QC_duplicatesCode)
 #'   print(Output$QC_singleChildMismatch)
 #'   print(Output$QC_singleCodeError)
-#'   print(Output$QC_multipleCodeError
-#'     
-#'  )
+#'   print(Output$QC_multipleCodeError)
 #'   print(Output$QC_gapBefore)
 #'   print(Output$QC_lastSibling)
 #' }
+
 
 
 

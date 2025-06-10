@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataStructure.R
 \name{dataStructure}
 \alias{dataStructure}
-\title{Retrieve information about the structure of each classification tables from CELLAR and FAO repositories.}
+\title{Retrieve information about the structure of each classification table from the CELLAR and FAO repositories}
 \usage{
 dataStructure(
   endpoint,
@@ -41,8 +41,7 @@ If needed to view the SPARQL query used, the argument should be set as \code{TRU
 }
 }
 \description{
-Retrieve information, for all the classification available in the repositories (CELLAR and FAO),
-about the level names their hierarchy and the numbers of records the function "dataStructure()" can be used.
+Retrieve information about the structure of each classification table from the CELLAR and FAO repositories
 }
 \examples{
 {

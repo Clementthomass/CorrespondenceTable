@@ -2,7 +2,7 @@
 % Please edit documentation in R/aggregateCorrespondenceTable.R
 \name{aggregateCorrespondenceTable}
 \alias{aggregateCorrespondenceTable}
-\title{aggregateCorrespondenceTable aggregates correspondence tables to higher hierarchical levels}
+\title{Aggregate a correspondence table to higher hierarchical levels}
 \usage{
 aggregateCorrespondenceTable(AB, A, B, CSVout = NULL)
 }
@@ -19,7 +19,7 @@ aggregateCorrespondenceTable(AB, A, B, CSVout = NULL)
 A data frame representing the aggregated correspondence table.
 }
 \description{
-The `aggregateCorrespondenceTable` function is designed to aggregate correspondence tables between two hierarchical classifications A and B to higher hierarchical levels. This is particularly useful when correspondence information is needed at levels other than the most granular level. The function provides a 'mechanically defined' aggregation, offering users candidate aggregations for subsequent analysis by statistical classification experts.
+Aggregate a correspondence table to higher hierarchical levels.
 }
 \examples{
 # Use data from the folder extdata

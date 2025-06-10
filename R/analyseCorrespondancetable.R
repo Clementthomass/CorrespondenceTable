@@ -1,5 +1,5 @@
-#' @title analyseCorrespondenceTable performs analysis on correspondence tables
-#' @description The `analyseCorrespondenceTable` function takes input correspondence tables (AB) and related data (A and B) to perform analysis and generate various statistics.
+#' @title Perform analysis on correspondence tables
+#' @description Perform analysis on a correspondence table using its associated classifications to generate various statistics.
 #' It checks the validity of the input data, identifies components, calculates correspondence types, and creates summary tables.
 #' @param AB a mandatory argument containing a CSV file provide by the user contains the correspondence table data with columns "Acode" and "Bcode".
 #' @param A  a path to a CSV file containing source classification data with "Acode" column.
@@ -16,20 +16,20 @@
 #' The `CSVcorrespondenceAnalysis` contains statistics for each class in the correspondence table.
 #'
 #' @export
-#' @examples 
+#' @examples
 #' # Use data from the folder extdata
-#' 
-#'
-#'   
-#' 
-#' 
-#'
-#'
-#'
-#' # Perform analysis
-#' result <- analyseCorrespondenceTable(AB =system.file("extdata", "ExempleAnnexe.csv", package = "correspondenceTables"),A = NULL, longestAcodeOnly = FALSE, B = NULL, longestBcodeOnly = FALSE, CSVcorrespondenceInventory = NULL, CSVcorrespondenceAnalysis = NULL) 
+#' result <- analyseCorrespondenceTable(
+#'   AB = system.file("extdata", "ExempleAnnexe.csv", package = "correspondenceTables"),
+#'   A = NULL,
+#'   longestAcodeOnly = FALSE,
+#'   B = NULL,
+#'   longestBcodeOnly = FALSE,
+#'   CSVcorrespondenceInventory = NULL,
+#'   CSVcorrespondenceAnalysis = NULL
+#' )
 #' print(result$Inventory)
 #' print(result$Analysis)
+
 
 
 

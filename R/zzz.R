@@ -1,5 +1,12 @@
 #' @importFrom data.table fread fwrite
 #' @importFrom stats aggregate
 #' @importFrom utils menu read.csv tail write.csv txtProgressBar setTxtProgressBar
- 
-.onLoad<-function(libname, pkgname){}
+
+.onLoad <- function(libname, pkgname) {
+  if (getRversion() >= "2.15.1") {
+    utils::globalVariables(c(
+      "Acode", "Alevel", "Asuperior",
+      "Bcode", "Blevel", "Bsuperior"
+    ))
+  }
+}

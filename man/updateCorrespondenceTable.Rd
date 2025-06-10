@@ -2,7 +2,7 @@
 % Please edit documentation in R/updateCorrespondenceTable.R
 \name{updateCorrespondenceTable}
 \alias{updateCorrespondenceTable}
-\title{Update the correspondence table between statistical classifications A and B when A has been updated to version A*}
+\title{Correspondence table creation}
 \usage{
 updateCorrespondenceTable(
   A,
@@ -67,7 +67,7 @@ The other values is \code{FALSE}, which shows redundant records together with th
 }
 }
 \description{
-Update the correspondence table between statistical classifications A and B when A has been updated to version A*.
+Update a correspondence table when one of the classifications has changed
 }
 \details{
 File and file name requirements:

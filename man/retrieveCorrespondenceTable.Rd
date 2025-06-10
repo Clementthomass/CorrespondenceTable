@@ -2,7 +2,7 @@
 % Please edit documentation in R/retrieveCorrespondenceTable.R
 \name{retrieveCorrespondenceTable}
 \alias{retrieveCorrespondenceTable}
-\title{Retrieve correspondence tables between statistical classifications from CELLAR and FAO repositories.}
+\title{Retrieve classifications and correspondence tables stored as Linked Open Data}
 \usage{
 retrieveCorrespondenceTable(
   endpoint,
@@ -10,7 +10,8 @@ retrieveCorrespondenceTable(
   ID_table,
   language = "en",
   CSVout = NULL,
-  showQuery = TRUE
+  showQuery = TRUE,
+  localData = NULL
 )
 }
 \arguments{
@@ -34,7 +35,7 @@ By default is set to "en". This is an optional argument.}
 \item{showQuery}{The valid values are \code{FALSE} or \code{TRUE}. In both cases the correspondence table as an R object.
 If not needed to view the SPARQL query used, the argument should be set as \code{FALSE}. By default, the SPARQL query is produced.}
 
-\item{localData}{this parameter allow the user to retrieve static data from the package in order to avoid any issues from the api}
+\item{localData}{Logical. If TRUE, the function retrieves static (local) data embedded in the package instead of querying the remote SPARQL endpoint. Default is FALSE.}
 }
 \value{
 \code{retrieveCorrespondenceTable()} returns a classification tables from CELLAR and FAO. The table includes the following variables:
@@ -49,24 +50,34 @@ If not needed to view the SPARQL query used, the argument should be set as \code
     \item Exclude: details on each object (e.g. cn2021)
     \item Comment: details on each object, if available
     \item URL: the URL from which the SPARQL query was retrieved
+   
 }
+
+If \code{showQuery = TRUE}, the function returns a list of two elements:
+\itemize{
+  \item A character string containing the SPARQL query used.
+  \item A \code{data.frame} containing the retrieved classification or correspondence table.
+}
+If \code{showQuery = FALSE}, the function returns only the \code{data.frame}.
 }
 \description{
-To facilitate the utilization of correspondence tables as inputs for the newCorrespondenceTable and updateCorrespondenceTable functions,
-"retrieveCorrespondenceTable" utility function has been developed. This utility function leverage R packages that enable SPARQL queries.
+Retrieve correspondence tables between classifications from CELLAR/FAO
+}
+\details{
+This function supports the global option \code{useLocalDataForVignettes}. If this option is set to TRUE using
+\code{options(useLocalDataForVignettes = TRUE)} before calling the function, the function will behave as if
+\code{localData = TRUE}, even if the argument is not explicitly provided. This is useful for running examples
+and vignettes without relying on external API access.
 }
 \examples{
-{
-    endpoint = "CELLAR"
-    prefix = "cn2022"
-    ID_table = "CN2022_NST2007"
-
-    results_ls = retrieveCorrespondenceTable( endpoint, prefix, ID_table)
-
-    # View SPARQL Query
+if (interactive()) {
+  endpoint = "CELLAR"
+  prefix = "cn2022"
+  ID_table = "CN2022_NST2007"
+  results_ls = try(retrieveCorrespondenceTable(endpoint, prefix, ID_table), silent = TRUE)
+  if (!inherits(results_ls, "try-error") && is.character(results_ls[[1]])) {
     cat(results_ls[[1]])
-
-    #View Classification Table
-    #View(results_ls[[2]])
-    }
+  }
+  # if (!inherits(results_ls, "try-error")) View(results_ls[[2]])
+}
 }

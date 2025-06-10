@@ -4,7 +4,7 @@ output: rmarkdown::html_vignette
 
 
 vignette: >
-  %\VignetteIndexEntry{Retrieve classification quality control with the correspondenceTables package}
+  %\VignetteIndexEntry{Perform quality control on a classification}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

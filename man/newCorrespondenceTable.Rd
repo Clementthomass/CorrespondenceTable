@@ -2,7 +2,7 @@
 % Please edit documentation in R/newCorrespondenceTable.R
 \name{newCorrespondenceTable}
 \alias{newCorrespondenceTable}
-\title{Ex novo creation of candidate correspondence tables between two classifications via pivot tables}
+\title{Correspondence table creation}
 \usage{
 newCorrespondenceTable(
   Tables,
@@ -53,10 +53,7 @@ The other values is \code{FALSE}, which shows redundant records together with th
 }
 }
 \description{
-Creation of a candidate correspondence table between two classifications, A and B, when there are
-  correspondence tables leading from the first classification to the second one via \eqn{k} intermediate pivot
-  classifications \eqn{C_1, \ldots, C_k}.
-  The correspondence tables leading from A to B are A:\eqn{C_1}, \{\eqn{C_i}:\eqn{C_{i+1}}: \eqn{1 \le i \le k -1}\}, B:\eqn{C_k}.
+Create a candidate correspondence table between two classifications via pivots
 }
 \details{
 File and file name requirements:

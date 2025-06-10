@@ -7,19 +7,20 @@
 prefixList(endpoint, prefix = NULL)
 }
 \arguments{
-\item{endpoint}{SPARQL endpoints provide a standardized way to access data sets, 
-making it easier to retrieve specific information or perform complex queries on linked data.  
-The valid values are \code{"CELLAR"} and \code{"FAO"}.}
+\item{endpoint}{SPARQL endpoint to query. Must be either \code{"CELLAR"} or \code{"FAO"}.}
+
+\item{prefix}{Optional. A vector of prefix names to filter. If \code{NULL}, all available prefixes will be returned.}
 }
 \value{
-\code{prefixList()} returns a list of prefixes to be used when defying the SPARQL query.
+A character matrix of SPARQL PREFIX declarations.
 }
 \description{
-Create a list of prefixes to be used when defying the SPARQL query to retrieve the tables
+Creates a list of prefixes to be used when building SPARQL queries to retrieve classification tables from CELLAR or FAO.
+If the global option \code{useLocalDataForVignettes} is set to TRUE (e.g. \code{options(useLocalDataForVignettes = TRUE)}),
+the function uses local pre-saved metadata instead of querying live endpoints.
 }
-\examples{
-{
-    endpoint = "CELLAR"
-    prefix_list = prefixList(endpoint)
-    }
+\details{
+When the global option \code{useLocalDataForVignettes} is set to \code{TRUE},
+this function retrieves static metadata from local CSV files rather than querying the online SPARQL endpoint.
+This is useful for offline use or to ensure vignette reproducibility.
 }

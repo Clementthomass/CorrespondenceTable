@@ -2,36 +2,22 @@
 % Please edit documentation in R/classificationList.R
 \name{classificationList}
 \alias{classificationList}
-\title{Retrieve a list of classification tables from CELLAR and FAO repositories or both.}
+\title{Retrieve lists of classification tables from the CELLAR and FAO repositories}
 \usage{
 classificationList(endpoint = "ALL", showQuery = FALSE)
 }
 \arguments{
-\item{endpoint}{SPARQL endpoints provide a standardized way to access data sets, 
-making it easier to retrieve specific information or perform complex queries on linked data. This is an optional
-parameter, which by default is set to \code{"ALL"}.
-The valid values are \code{"CELLAR"}, \code{"FAO"} and \code{"ALL"} for both endpoints.}
+\item{endpoint}{One of "CELLAR", "FAO", or "ALL" (default).}
 
-\item{showQuery}{The valid values are \code{FALSE} or \code{TRUE}. In both cases the correspondence table as an R object. 
-If needed to view the SPARQL query used, the argument should be set as \code{TRUE}. By default, NO SPARQL query is produced.}
+\item{showQuery}{Logical. If TRUE, returns the SPARQL query along with the data.}
 }
 \value{
-\code{classificationList()} returns a table with information needed to retrieve the classification table:
-\itemize{
-    \item Prefix name: the  SPARQL instruction for a declaration of a namespace prefix
-    \item Conceptscheme: taxonomy of the SKOS object to be retrieved
-    \item URI: the URL from which the SPARQL query was retrieved
-    \item Name: the name of the table retrieved
-}
+A data frame (if endpoint is "CELLAR" or "FAO"), or a named list of two data frames (if endpoint is "ALL").
 }
 \description{
-The purpose of this function is to provide a comprehensive summary 
-of the data structure for each classification in CELLAR and FAO endpoint. 
-The summary includes information such as the prefix name, URI, key, concept scheme, and title associated with each classification.
+Retrieve a list of classification tables from the CELLAR and FAO repositories.
 }
-\examples{
-{
-    endpoint = "ALL"
-    list_data = classificationList(endpoint)
-    }
+\details{
+When the global option \code{useLocalDataForVignettes} is set to TRUE (e.g. \code{options(useLocalDataForVignettes = TRUE)}),
+this function retrieves pre-saved local CSV files instead of querying online SPARQL endpoints.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/classificationQC.R
 \name{classificationQC}
 \alias{classificationQC}
-\title{ClassificationQC performs quality control checks on statistical classifications}
+\title{Perform quality control on a classification}
 \usage{
 classificationQC(
   classification,
@@ -18,6 +18,8 @@ classificationQC(
 \arguments{
 \item{classification}{Refers to a classification in a CSV file structured with two columns: "codes" and "labels." If the classification is provided as a CSV file. This argument is mandatory.}
 
+\item{lengthsFile}{Refers to a CSV file (one record per hierarchical level) containing the initial and last positions of the segment of the code specific to that level. The number of lines in this CSV file implicitly defines the number of hierarchical levels of the classification. This argument is mandatory.}
+
 \item{fullHierarchy}{It is used to test the fullness of hierarchy. If the parameter \code{fullHierarchy} is set to \code{FALSE}, the function will check that every position at a lower level than 1 should have parents all the way up to level 1. If set to \code{TRUE}, it will additionally check that any position at a higher level than k should have children all the way down to level k.}
 
 \item{labelUniqueness}{It is used to test that positions at the same hierarchical level have unique labels. If set to \code{TRUE}, the compliance is checked, and positions with duplicate labels are marked as 1 in the "duplicateLabel" column, while positions with unique labels are marked as 0.}
@@ -29,8 +31,6 @@ classificationQC(
 \item{sequencing}{It refers to a CSV file to define the admissible codes for multiple children at each level. If this parameter is not \code{NULL}, the function checks the sequencing of multiple children codes within each level, as provided in the CSV file.}
 
 \item{CSVout}{The valid values are \code{NULL} means that the user don't need to write the parameters  \code{TRUE}. In both cases, the output will be returned as an R list. If the output should be saved as an CSV file, the argument should be set to \code{TRUE}. By default, no CSV file is produced.}
-
-\item{lengthsfile}{Refers to a CSV file (one record per hierarchical level) containing the initial and last positions of the segment of the code specific to that level. The number of lines in this CSV file implicitly defines the number of hierarchical levels of the classification. This argument is mandatory.}
 }
 \value{
 \code{classificationQC()} returns a list of data frames identifying possible cases violating the formatting requirements. The databases returned depend on the rules checked. The databases produced are:
@@ -68,24 +68,28 @@ classificationQC(
 - \code{QC_lastSibling}: A subset of the \code{QC_output} dataframe including only records that are multiple children and are the last sibling following the sequencing provided in the 'sequencing' CSV file.
 }
 \description{
-The `classificationQC()` function performs quality control checks on statistical classifications, ensuring their integrity and accuracy. It checks compliance with various structural rules and provides informative error messages for violations. This function requires input files containing code and label information for each classification position and verifies the following criteria:
-- Formatting requirements
-- Uniqueness of codes
-- Fullness of hierarchy
-- Uniqueness of labels
-- Hierarchical label dependencies
-- Single child code compliance
-- Sequencing of codes
-
-The `classificationQC()` function generates a QC output data frame with the classification data, hierarchical levels, code segments, and test outcomes. Additionally, it allows exporting the output to a CSV file.
+Perform quality control on a classification
 }
 \examples{
 {
-# classification <- system.file("extdata", "Nace2.csv", package = "correspondenceTables")
-  
-  lengthsFile <- system.file("extdata", "lenghtsNace.csv", package = "correspondenceTables")
-  
-  Output <- classificationQC(classification = system.file("extdata", "Nace2.csv", package = "correspondenceTables") , lengthsFile = system.file("extdata", "lenghtsNace.csv", package = "correspondenceTables"), fullHierarchy = TRUE, labelUniqueness  = TRUE, labelHierarchy = TRUE, singleChildCode = NULL, sequencing = NULL, CSVout = system.file("extdata", "QC_Output.csv", package = "correspondenceTables")) 
+  classification <- system.file("extdata", "Nace2.csv",
+    package = "correspondenceTables")
+  lengthsFile <- system.file("extdata", "lenghtsNace.csv",
+    package = "correspondenceTables")
+  CSVout <- system.file("extdata", "QC_Output.csv",
+    package = "correspondenceTables")
+
+  Output <- classificationQC(
+    classification = classification,
+    lengthsFile = lengthsFile,
+    fullHierarchy = TRUE,
+    labelUniqueness  = TRUE,
+    labelHierarchy = TRUE,
+    singleChildCode = NULL,
+    sequencing = NULL,
+    CSVout = CSVout
+  )
+
   print(Output$QC_output)
   print(Output$QC_noLevels)
   print(Output$QC_orphan)
@@ -94,9 +98,7 @@ The `classificationQC()` function generates a QC output data frame with the clas
   print(Output$QC_duplicatesCode)
   print(Output$QC_singleChildMismatch)
   print(Output$QC_singleCodeError)
-  print(Output$QC_multipleCodeError
-    
- )
+  print(Output$QC_multipleCodeError)
   print(Output$QC_gapBefore)
   print(Output$QC_lastSibling)
 }

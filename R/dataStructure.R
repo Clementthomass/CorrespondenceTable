@@ -1,6 +1,4 @@
-#' @title Retrieve information about the structure of each classification tables from CELLAR and FAO repositories.
-#' @description Retrieve information, for all the classification available in the repositories (CELLAR and FAO),
-#' about the level names their hierarchy and the numbers of records the function "dataStructure()" can be used.
+#' @title Retrieve information about the structure of each classification table from the CELLAR and FAO repositories
 #' @param endpoint SPARQL endpoints provide a standardized way to access data sets, 
 #' making it easier to retrieve specific information or perform complex queries on linked data.
 #' The valid values are \code{"CELLAR"} or \code{"FAO"}.

@@ -1,3 +1,4 @@
+#' @importFrom utils read.csv2
 testInputTable <- function(arg_name, arg_value, all_ch = FALSE) {
   errors <- c()  # Initialiser un vecteur pour collecter les messages d'erreur
   caller <- sys.call(-1) #define the caller function

@@ -32,26 +32,22 @@ The option `useLocalDataForVignettes` is set to true to force the use of static 
 options(useLocalDataForVignettes = TRUE)
 ```
 
+
 ## Utility function to help you use the core functions
 
 In order to be able to use the core functions (`retrieveClassification()`  and `retrieveCorrespondenceTable()`), you need to know what to ask for: which classifications (or correspondence tables) can be retrieved from the selectable SPARQL endpoints? For hierarchical classifications, you would also need to know which levels could be selected for a given classification.
 
 **Gathering information necessary for classification retrieval**
 
-The utility function `classificationList()`  provides a list of all classifications available for retrieval – either at a specific SPARQL endpoint (FAO or CELLAR).
+The utility function `classificationList()` provides a list of all classifications available for retrieval – either at a specific SPARQL endpoint (FAO or CELLAR).
 
-```{r, results="hide"}
-endpoint = "CELLAR"
-prefixList(endpoint)
-```
-
-You can also get lists of all classifications available at all (both) SPARQL endpoints to which the correspondenceTables package has been adapted.
 
 **EXAMPLE A**
 
 ```{r}
 endpoint = "CELLAR"
-list_data = classificationList(endpoint)
+# NOTE: classificationList() is now internal. Accessing it via ::: for vignette only
+list_data = correspondenceTables:::classificationList(endpoint)
 print(list_data, right= FALSE)
 ```
 
@@ -116,10 +112,10 @@ print(head(result_fr),right= FALSE)
 When using dynamic data, the return value is a list with two elements. The SPARQL query is saved in the first element of the returned list and the classification table is saved in the second element of the list.
 
 ```{r}
-# # Extract the SPARQL query used
+#Extract the SPARQL query used
 # SPARQLquery = result_ls[[1]]
-
-# # Obtain data frame in which the classification table is saved
+# 
+# ##Obtain data frame in which the classification table is saved
 # table = result_ls[[2]]
 ```
 
@@ -128,7 +124,7 @@ When using dynamic data, the return value is a list with two elements. The SPARQ
 The `correspondenceTableList()` function is analogous to the `classificationList()` function – but serves to list the available correspondence tables in the CELLAR and/or FAO repositories.
 
 ```{r}
-#corr_list = correspondenceTableList("ALL")
+corr_list = correspondenceTableList("ALL")
 ```
 
 **EXAMPLE C**

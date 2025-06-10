@@ -1,5 +1,5 @@
-#' @title Update the correspondence table between statistical classifications A and B when A has been updated to version A*
-#' @description Update the correspondence table between statistical classifications A and B when A has been updated to version A*.
+#' @title Correspondence table creation
+#' @description Update a correspondence table when one of the classifications has changed
 #' @param A A string of the type \code{character} containing the name of a csv file that contains the original classification A.
 #' @param B A string of the type \code{character} containing the name of a csv file that contains classification B.
 #' @param AStar A string of the type \code{character} containing the name of a csv file that contains the updated version A*.

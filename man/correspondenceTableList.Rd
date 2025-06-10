@@ -2,24 +2,38 @@
 % Please edit documentation in R/correspondenceTableList.R
 \name{correspondenceTableList}
 \alias{correspondenceTableList}
-\title{Overview of all the available correspondence classification from CELLAR and FAO repository.}
+\title{Retrieve a list of all correspondence tables in the CELLAR and FAO repositories}
 \usage{
 correspondenceTableList(endpoint)
 }
 \arguments{
-\item{endpoint}{SPARQL endpoints provide a standardized way to access data sets, 
-making it easier to retrieve specific information or perform complex queries on linked data. 
-The valid values are \code{"CELLAR"}, \code{"FAO"} or \code{"ALL"} for both.}
+\item{endpoint}{Character. SPARQL endpoint(s) to query. Valid values are:
+\code{"CELLAR"}, \code{"FAO"}, or \code{"ALL"} (default).}
 }
 \value{
-\code{correspondenceTableList()} returns a list of the correspondence tables available with prefix name, ID, Source classification, 
-Target classification, Table name and URI.
+If \code{endpoint = "CELLAR"} or \code{"FAO"}, returns a \code{data.frame} with:
+\itemize{
+  \item Prefix
+  \item ID
+  \item Source Classification
+  \item Target Classification
+  \item Table Name
+  \item URI
+}
+If \code{endpoint = "ALL"}, returns a named list of two \code{data.frame}s: one for each endpoint.
 }
 \description{
-Provides an overview of all the available correspondence classification from CELLAR and FAO repository.
+Retrieve a list of all correspondence tables in the CELLAR and FAO repositories
+}
+\details{
+This function supports the global option \code{useLocalDataForVignettes}. When this option is set to \code{TRUE}
+via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying
+live SPARQL endpoints. This is useful for building vignettes or testing offline.
 }
 \examples{
-{
-    corr_list = correspondenceTableList("ALL")
-    }
+if (interactive()) {
+  # Retrieve list of all available correspondence tables
+  corr_list <- correspondenceTableList("ALL")
+  View(corr_list)
+}
 }
