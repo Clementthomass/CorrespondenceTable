@@ -40,8 +40,10 @@ A list (if \code{showQuery = TRUE}) with the SPARQL query and the correspondence
 Retrieve correspondence tables from the CELLAR and FAO repositories.
 }
 \details{
-This function supports the global option \code{useLocalDataForVignettes}. If set to \code{TRUE},
-it overrides \code{localData = TRUE} for vignette purposes.
+The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
+The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
+This is useful for building vignettes or offline testing.
 }
 \examples{
 # \dontrun{

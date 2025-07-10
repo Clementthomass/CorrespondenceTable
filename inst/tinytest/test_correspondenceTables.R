@@ -1,4 +1,3 @@
-
 # TEST 1a
 A = system.file("extdata/test", "NACE2.csv", package = "correspondenceTables")
 AStar = system.file("extdata/test", "NACE21.csv", package = "correspondenceTables")

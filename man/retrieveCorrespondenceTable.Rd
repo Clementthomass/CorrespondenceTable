@@ -64,10 +64,10 @@ If \code{showQuery = FALSE}, the function returns only the \code{data.frame}.
 Retrieve correspondence tables between classifications from CELLAR/FAO
 }
 \details{
-This function supports the global option \code{useLocalDataForVignettes}. If this option is set to TRUE using
-\code{options(useLocalDataForVignettes = TRUE)} before calling the function, the function will behave as if
-\code{localData = TRUE}, even if the argument is not explicitly provided. This is useful for running examples
-and vignettes without relying on external API access.
+The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
+The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
+This is useful for building vignettes or offline testing.
 }
 \examples{
 if (interactive()) {

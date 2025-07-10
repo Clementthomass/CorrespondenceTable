@@ -9,4 +9,7 @@
       "Bcode", "Blevel", "Bsuperior"
     ))
   }
+  # Forcer la méthode "libcurl" pour download.file et url()
+  options(download.file.method = "libcurl")
+  options(url.method = "libcurl")
 }

@@ -9,10 +9,11 @@
 #' @return A character matrix of SPARQL PREFIX declarations.
 #'
 #' @details
-#' When the global option \code{useLocalDataForVignettes} is set to \code{TRUE},
-#' this function retrieves static metadata from local CSV files rather than querying the online SPARQL endpoint.
-#' This is useful for offline use or to ensure vignette reproducibility.
-#'
+#' The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
+#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+#' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
+#' This is useful for building vignettes or offline testing.
+
 #' @import httr
 
 

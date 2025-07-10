@@ -23,6 +23,11 @@
 #'     \item Depth: identify the hierarchy of each level
 #'     \item Count: the number of objects retrieved in each level
 #' }
+#' #' @details
+#' The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
+#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+#' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
+#' This is useful for building vignettes or offline testing.
 #' @examples
 #' {
 #'    ## Obtain a list including the structure of each classification available 

@@ -26,9 +26,10 @@ If \code{endpoint = "ALL"}, returns a named list of two \code{data.frame}s: one 
 Retrieve a list of all correspondence tables in the CELLAR and FAO repositories
 }
 \details{
-This function supports the global option \code{useLocalDataForVignettes}. When this option is set to \code{TRUE}
-via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying
-live SPARQL endpoints. This is useful for building vignettes or testing offline.
+The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
+The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
+This is useful for building vignettes or offline testing.
 }
 \examples{
 if (interactive()) {

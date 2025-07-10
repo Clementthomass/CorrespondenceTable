@@ -4,3 +4,6 @@ docs
 .github
 ^doc$
 ^Meta$
+^vignettes/UtilityFunctions\.Rmd$
+^vignettes/UtilityFunctions\.html$
+^vignettes/UtilityFunctions\.R$
