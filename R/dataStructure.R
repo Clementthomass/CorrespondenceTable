@@ -125,7 +125,6 @@ dataStructure = function(endpoint, prefix, conceptScheme, language = "en", showQ
       ORDER BY ?Concept_Scheme ?Depth ?Level
       
   ")
-          
   
   response = httr::POST(url = source, accept("text/csv"), body = list(query = SPARQL.query), encode = "form")
   table = read.csv(text=content(response, "text"), sep= ",")  
