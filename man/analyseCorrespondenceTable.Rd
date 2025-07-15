@@ -15,13 +15,13 @@ analyseCorrespondenceTable(
 )
 }
 \arguments{
-\item{AB}{a mandatory argument containing a CSV file provide by the user contains the correspondence table data with columns "Acode" and "Bcode".}
+\item{AB}{A mandatory argument containing a CSV file provide by the user contains the correspondence table data with columns "Acode" and "Bcode".}
 
-\item{A}{a path to a CSV file containing source classification data with "Acode" column.}
+\item{A}{A path to a CSV file containing source classification data with "Acode" column.}
 
 \item{longestAcodeOnly}{A Boolean argument to filter source classification data based on "Acode" retaining only the maximum length, thus the lowest level Acode .}
 
-\item{B}{a path to a CSV file containing target classification data with "Bcode" column.}
+\item{B}{A path to a CSV file containing target classification data with "Bcode" column.}
 
 \item{longestBcodeOnly}{A Boolean argument to filter source classification data based on "Bcode" retaining only the maximum length, thus the lowest level Bcode.}
 
