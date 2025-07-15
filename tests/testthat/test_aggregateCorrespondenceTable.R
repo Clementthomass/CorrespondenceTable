@@ -1,4 +1,3 @@
-library(testthat)
 
 test_that("aggregateCorrespondenceTable returns correct result for normal input", {
   AB <- system.file("extdata/test", "ab_data.csv", package = "correspondenceTables")
