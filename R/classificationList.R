@@ -30,7 +30,7 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
   
   # Use static files when requested (for vignettes, etc.)
   if (getOption("useLocalDataForVignettes", FALSE)) {
-    path <- system.file("extdata", paste0("classificationlList_", endpoint, ".csv"), package = "correspondenceTables")
+    path <- system.file("extdata", paste0("classificationList_", endpoint, ".csv"), package = "correspondenceTables")
     if (file.exists(path)) {
       return(read.csv(path))
     } else {
