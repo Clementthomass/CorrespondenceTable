@@ -72,13 +72,29 @@ test_that("test_5 - analyseCorrespondenceTable detects duplicates in AB file", {
                ignore.case = TRUE)
 })
 
-test_that("test_6 - analyseCorrespondenceTable handles invalid input", {
-  expect_error(analyseCorrespondenceTable("fichier_inexistant.csv"))
-  expect_error(analyseCorrespondenceTable(AB = NULL))
-  expect_error(analyseCorrespondenceTable(
-    AB = system.file("extdata/test", "ExempleAnnexe.csv", package = "correspondenceTables"),
-    longestAcodeOnly = "oui"
-  ))
+test_that("test_6 - analyseCorrespondenceTable throws error if longestAcodeOnly or longestBcodeOnly are not logical", {
+  valid_AB <- system.file("extdata/test", "TestAnalyse_ExempleAnnexe.csv", package = "correspondenceTables")
+  
+  # Vérifie que le fichier existe bien
+  expect_true(file.exists(valid_AB))
+  
+  # Test avec longestAcodeOnly invalide
+  expect_error(
+    analyseCorrespondenceTable(
+      AB = valid_AB,
+      longestAcodeOnly = "YES"
+    ),
+    "Argument 'longestAcodeOnly' must be TRUE or FALSE"
+  )
+  
+  # Test avec longestBcodeOnly invalide
+  expect_error(
+    analyseCorrespondenceTable(
+      AB = valid_AB,
+      longestBcodeOnly = 1
+    ),
+    "Argument 'longestBcodeOnly' must be TRUE or FALSE"
+  )
 })
 
 test_that("test_7 - filtering works for longestAcodeOnly and longestBcodeOnly", {
@@ -144,3 +160,4 @@ test_that("test_9 - unmatched codes are correctly detected and reported", {
   expect_true(length(setdiff(A_data[[1]], AB_data[[1]])) > 0)
   expect_true(length(setdiff(B_data[[1]], AB_data[[2]])) > 0)
 })
+

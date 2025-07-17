@@ -36,6 +36,12 @@
 analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B = NULL, longestBcodeOnly = FALSE,
                                        CSVcorrespondenceInventory = NULL, CSVcorrespondenceAnalysis = NULL) {
   
+  if (!is.logical(longestAcodeOnly)) {
+    stop("Argument 'longestAcodeOnly' must be TRUE or FALSE (logical).")
+  }
+  if (!is.logical(longestBcodeOnly)) {
+    stop("Argument 'longestBcodeOnly' must be TRUE or FALSE (logical).")
+  }
   
   ab_data <- testInputTable("Correspondence table (AB)", AB)
   
@@ -74,10 +80,13 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     if (length(ab_data$Acode) != length(ab_data$Bcode)) stop("Acode and Bcode lengths differ after filtering.")
   }
   
+  if (!is.null(A) && is.character(A) && !file.exists(A)) {
+    stop(paste0("File not found: ", A, ". Please check the path and filename."))
+  }
   
   if (!is.null(A)) {
     a_data <- testInputTable("Source classification table (A)", A)
-    print(a_data)
+    
     
     colnames(a_data)[1] <- "Acode"
     unused_data_a <- a_data
@@ -89,7 +98,6 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
       maxLengthA <- max(nchar(a_data$Acode, type = "width"))
       longest_Acode <- a_data$Acode[nchar(a_data$Acode, type = "width") == maxLengthA]
       a_data$Acode <- c(longest_Acode, rep("", nrow(a_data) - length(longest_Acode)))
-      print(a_data)
       
       if (nrow(a_data) == 0) stop("No valid records found in A after filtering longest Acode.")
     }
@@ -112,6 +120,9 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     }
   }
   
+  if (!is.null(B) && is.character(B) && !file.exists(B)) {
+    stop(paste0("File not found: ", B, ". Please check the path and filename."))
+  }
   
   if (!is.null(B)) {
     b_data <- testInputTable("Target classification table (B)", B)
