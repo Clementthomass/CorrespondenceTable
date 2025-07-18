@@ -59,26 +59,28 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   # Duplicates  Acode-Bcode check
   duplicate_pairs <- ab_data[duplicated(ab_data[c("Acode", "Bcode")]), c("Acode", "Bcode")]
   if (nrow(duplicate_pairs) > 0) {
-    message("Please remove duplicate(s) combinations of Acode and Bcode found in AB file.")
-    print(duplicate_pairs)
-    stop("Duplicates found.")
+    stop(paste0(
+      "Duplicate row(s) found in AB file: the following Acode-Bcode pairs appear more than once:\n",
+      paste(capture.output(print(duplicate_pairs)), collapse = "\n"),
+      "\nPlease remove duplicate rows from your correspondence table."
+    ))
   }
   
-  # Filter on longest codes 
-  if (longestAcodeOnly || longestBcodeOnly) {
-    if (longestAcodeOnly) {
-      maxLengthA <- max(nchar(ab_data$Acode, type = "width"))
-      longest_Acode <- ab_data$Acode[nchar(ab_data$Acode, type = "width") == maxLengthA]
-      ab_data$Acode <- c(longest_Acode, rep("", nrow(ab_data) - length(longest_Acode)))
-    }
-    if (longestBcodeOnly) {
-      maxLengthB <- max(nchar(ab_data$Bcode, type = "width"))
-      longest_Bcode <- ab_data$Bcode[nchar(ab_data$Bcode, type = "width") == maxLengthB]
-      ab_data$Bcode <- c(longest_Bcode, rep("", nrow(ab_data) - length(longest_Bcode)))
-    }
-    if (nrow(ab_data) == 0) stop("No valid records after filtering longest codes.")
-    if (length(ab_data$Acode) != length(ab_data$Bcode)) stop("Acode and Bcode lengths differ after filtering.")
+  
+  # Filter rows in AB table based on longest Acode and/or Bcode
+  if (longestAcodeOnly) {
+    maxLengthA <- max(nchar(ab_data$Acode, type = "width"))
+    ab_data <- ab_data[nchar(ab_data$Acode, type = "width") == maxLengthA, ]
   }
+  
+  if (longestBcodeOnly) {
+    maxLengthB <- max(nchar(ab_data$Bcode, type = "width"))
+    ab_data <- ab_data[nchar(ab_data$Bcode, type = "width") == maxLengthB, ]
+  }
+  
+  # Final safety check
+  if (nrow(ab_data) == 0) stop("No valid records after filtering longest codes.")
+  
   
   if (!is.null(A) && is.character(A) && !file.exists(A)) {
     stop(paste0("File not found: ", A, ". Please check the path and filename."))
@@ -92,14 +94,13 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     unused_data_a <- a_data
     
     if (nrow(a_data) == 0) stop("No valid records found in source classification table (A).")
-    if (any(duplicated(a_data$Acode))) stop("Duplicate Acode(s) found in A file.")
-    
-    if (longestAcodeOnly) {
-      maxLengthA <- max(nchar(a_data$Acode, type = "width"))
-      longest_Acode <- a_data$Acode[nchar(a_data$Acode, type = "width") == maxLengthA]
-      a_data$Acode <- c(longest_Acode, rep("", nrow(a_data) - length(longest_Acode)))
-      
-      if (nrow(a_data) == 0) stop("No valid records found in A after filtering longest Acode.")
+    dups_A <- a_data$Acode[duplicated(a_data$Acode)]
+    if (length(dups_A) > 0) {
+      stop(paste0(
+        "Duplicate Acode(s) found in A file:\n",
+        paste(unique(dups_A), collapse = ", "),
+        "\nEach Acode must be unique in the source classification."
+      ))
     }
     
     unmatched_codes_A <- setdiff(a_data$Acode, ab_data$Acode)
@@ -130,13 +131,13 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     unused_data_b <- b_data
     
     if (nrow(b_data) == 0) stop("No valid records found in target classification table (B).")
-    if (any(duplicated(b_data$Bcode))) stop("Duplicate Bcode(s) found in B file.")
-    
-    if (longestBcodeOnly) {
-      maxLengthB <- max(nchar(b_data$Bcode, type = "width"))
-      longest_Bcode <- b_data$Bcode[nchar(b_data$Bcode, type = "width") == maxLengthB]
-      b_data$Bcode <- c(longest_Bcode, rep("", nrow(b_data) - length(longest_Bcode)))
-      if (nrow(b_data) == 0) stop("No valid records found in B after filtering longest Bcode.")
+    dups_B <- b_data$Bcode[duplicated(b_data$Bcode)]
+    if (length(dups_B) > 0) {
+      stop(paste0(
+        "Duplicate Bcode(s) found in B file:\n",
+        paste(unique(dups_B), collapse = ", "),
+        "\nEach Bcode must be unique in the target classification."
+      ))
     }
     
     unmatched_codes_B <- setdiff(b_data$Bcode, ab_data$Bcode)
@@ -157,7 +158,6 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
       ))
     }
   }
-  
   
   #graph biparti
   g <- igraph::graph_from_data_frame(ab_data, directed = FALSE)
