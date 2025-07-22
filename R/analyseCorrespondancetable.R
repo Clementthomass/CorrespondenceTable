@@ -205,9 +205,17 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
     )
   })
   
-  result <- do.call(rbind, component_stats)
-  Inventory <- as.data.frame(result)
-  
+  Inventory <- do.call(rbind, lapply(component_stats, function(x) {
+    data.frame(
+      Component = x$Component,
+      CorrespondenceType = x$CorrespondenceType,
+      SourcePositions = I(list(x$SourcePositions)),
+      TargetPositions = I(list(x$TargetPositions)),
+      nSourcePositions = as.integer(x$nSourcePositions),
+      nTargetPositions = as.integer(x$nTargetPositions),
+      stringsAsFactors = FALSE
+    )
+  }))
   # Table Analysis
   Analysis <- data.frame(
     ClassC = ab_data$Acode,
@@ -230,9 +238,8 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   Inventory_df$CorrespondenceType <- as.character(Inventory_df$CorrespondenceType)
   Inventory_df$SourcePositions <- sapply(Inventory_df$SourcePositions, function(x) paste(x, collapse = ", "))
   Inventory_df$TargetPositions <- sapply(Inventory_df$TargetPositions, function(x) paste(x, collapse = ", "))
-  Inventory_df$nSourcePositions <- as.numeric(Inventory_df$nSourcePositions)
-  Inventory_df$nTargetPositions <- as.numeric(Inventory_df$nTargetPositions)
   
+
   Analysis_df <- merge(Analysis, unused_data_ab, by = c("Acode", "Bcode"), all = FALSE)
   
   if (!is.null(B)) {
