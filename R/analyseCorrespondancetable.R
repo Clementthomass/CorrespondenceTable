@@ -242,7 +242,14 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   if (!is.null(A)) {
     Analysis_df <- merge(Analysis_df, unused_data_a, by = "Acode", all = FALSE)
   }
-  
+  force_integer_if_whole <- function(df) {
+    for (col in names(df)) {
+      if (is.numeric(df[[col]]) && all(df[[col]] %% 1 == 0, na.rm = TRUE)) {
+        df[[col]] <- as.integer(df[[col]])
+      }
+    }
+    df
+  }
   Analysis_df <- Analysis_df[, c("Acode", "Bcode", setdiff(names(Analysis_df), c("Acode", "Bcode")))]
   colnames(Analysis_df)[1:2] <- ColumnNames_ab[1:2]
   

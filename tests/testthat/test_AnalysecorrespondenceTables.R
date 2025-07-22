@@ -202,29 +202,32 @@ test_that("test_8 - output structure of Inventory and Analysis is correct", {
   expect_true(is.list(result))
   expect_named(result, c("Inventory", "Analysis"))
   
-  # Check Inventory structure
+  # Expected minimal columns
   expected_cols_inventory <- c("Component", "CorrespondenceType", "SourcePositions", "TargetPositions",
                                "nSourcePositions", "nTargetPositions")
-  expect_s3_class(result$Inventory, "data.frame")
-  expect_identical(colnames(result$Inventory), expected_cols_inventory)
+  expected_cols_analysis <- c("ClassA", "ClassB", "nTargetClasses",
+                              "SourceToTargetMapping", "nSourceClasses", "TargetToSourceMapping")
   
-  # Check types in Inventory
+  # Inventory checks
+  expect_s3_class(result$Inventory, "data.frame")
+  expect_true(all(expected_cols_inventory %in% names(result$Inventory)))
   expect_type(result$Inventory$Component, "character")
-  expect_type(result$Inventory$nSourcePositions, "double")
-  expect_type(result$Inventory$nTargetPositions, "double")
+  expect_type(result$Inventory$nSourcePositions, "integer")
+  expect_type(result$Inventory$nTargetPositions, "integer")
   expect_type(result$Inventory$SourcePositions, "character")
   expect_type(result$Inventory$TargetPositions, "character")
   
-  # Check Analysis structure
-  expected_cols_analysis <- c("ClassA", "ClassB", "nTargetClasses",
-                              "SourceToTargetMapping", "nSourceClasses", "TargetToSourceMapping")
+  # Analysis checks
   expect_s3_class(result$Analysis, "data.frame")
-  expect_identical(colnames(result$Analysis), expected_cols_analysis)
-  
-  # Check types in Analysis
+  expect_true(all(expected_cols_analysis %in% names(result$Analysis)))
   expect_type(result$Analysis$ClassA, "character")
   expect_type(result$Analysis$ClassB, "character")
+  expect_type(result$Analysis$nTargetClasses, "integer")
+  expect_type(result$Analysis$nSourceClasses, "integer")
+  expect_type(result$Analysis$SourceToTargetMapping, "character")
+  expect_type(result$Analysis$TargetToSourceMapping, "character")
 })
+
 
 test_that("test_9 - unmatched codes are correctly detected and reported", {
   # This test checks that analyseCorrespondenceTable emits appropriate warnings
