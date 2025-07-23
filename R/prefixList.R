@@ -1,31 +1,10 @@
-#' @title Create a list of prefixes for both CELLAR and FAO repositories. 
-#' @description Creates a list of prefixes to be used when building SPARQL queries to retrieve classification tables from CELLAR or FAO.
-#' If the global option \code{useLocalDataForVignettes} is set to TRUE (e.g. \code{options(useLocalDataForVignettes = TRUE)}),
-#' the function uses local pre-saved metadata instead of querying live endpoints.
-#'
-#' @param endpoint SPARQL endpoint to query. Must be either \code{"CELLAR"} or \code{"FAO"}.
-#' @param prefix Optional. A vector of prefix names to filter. If \code{NULL}, all available prefixes will be returned.
-#'
-#' @return A character matrix of SPARQL PREFIX declarations.
-#'
-#' @details
-#' The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
-#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
-#' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
-#' This is useful for building vignettes or offline testing.
-
-#' @import httr
-
 
 prefixList <- function(endpoint, prefix = NULL) {
-  # --- Validate the endpoint argument ---
   endpoint <- toupper(endpoint)
   if (!endpoint %in% c("CELLAR", "FAO")) {
     stop("`endpoint` must be either 'CELLAR' or 'FAO'.")
   }
-  
-  # --- Define a set of static, common prefixes ---
-  prefix_init <- as.matrix(rbind(
+    prefix_init <- as.matrix(rbind(
     "PREFIX dc: <http://purl.org/dc/elements/1.1/>",
     "PREFIX dct: <http://purl.org/dc/terms/>",
     "PREFIX cb: <http://cbasewrap.ontologycentral.com/vocab#>",
