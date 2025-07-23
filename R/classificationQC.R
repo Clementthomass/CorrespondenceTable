@@ -103,24 +103,20 @@
   # 
   colnames(classification)[1:2] = c("Code", "Label")
   
-  # (a) Check the file extension
+  # (a) Robust check for file validity and extension
+  if (is.na(lengthsFile) || !is.character(lengthsFile) || length(lengthsFile) != 1) {
+    stop("The provided lengths file is invalid or missing.")
+  }
+  
   if (tolower(file_ext(lengthsFile)) == "csv") {
-    
-    
     # (b) Check if the file exists
     if (file.exists(lengthsFile)) {
-      
       # (c) Try reading the CSV file
       tryCatch({
-        # Read the first line of the CSV file
         first_line <- gsub("\"", "", readLines(lengthsFile, n = 1))    
-        
-        # Check for expected headers
         expected_headers <- c("charb", "chare") 
-        
-        # Split the first line using ","
         header_columns <- unlist(strsplit(first_line, ",", fixed = TRUE))
-        header_columns <- gsub("\"", "", header_columns)  # Supprimer les guillemets
+        header_columns <- gsub("\"", "", header_columns)
         
         if (length(header_columns) == length(expected_headers) && all(header_columns == expected_headers)) {
           lengths <- read.csv(lengthsFile, header = TRUE)
@@ -133,19 +129,15 @@
         if (length(header_columns) > length(expected_headers)) {
           warning("There are more columns than needed for LengthsFile. Using the first columns.")
         }
-        
       }, error = function(e) {
         stop("Error reading CSV file: ", e$message)
       })
-      
     } else {
       stop("The provided lengths file does not exist.")
     }
-    
   } else {
     stop("The provided file does not have a CSV extension.")
   }
-  
   ### RULE 1 - Correctness of formatting requirements (lengths file)
   
   #check that char file has at least one row
@@ -201,14 +193,20 @@
     codes = character(nrow(QC_output))
     
     for (j in 1:nrow(QC_output)) {
-      if (QC_output$level[j] >= i) {
-        segments[j] = ifelse(nchar(QC_output$Code[j]) >= chare, substr(QC_output$Code[j], charb, chare), NA)
-        codes[j] = ifelse(nchar(QC_output$Code[j]) >= chare, substr(QC_output$Code[j], 1, chare), NA)
+      is_level_present <- !is.null(QC_output$level[j]) && !is.na(QC_output$level[j])
+      is_code_present <- !is.null(QC_output$Code[j]) && !is.na(QC_output$Code[j])
+      is_code_long_enough <- is_code_present && nchar(QC_output$Code[j]) >= chare
+      is_level_eligible <- is_level_present && QC_output$level[j] >= i
+      
+      if (is_level_present && is_code_present && is_code_long_enough && is_level_eligible) {
+        segments[j] <- substr(QC_output$Code[j], charb, chare)
+        codes[j] <- substr(QC_output$Code[j], 1, chare)
       } else {
-        segments[j] = NA
-        codes[j] = NA
+        segments[j] <- NA
+        codes[j] <- NA
       }
     }
+    
     
     QC_output[, segment_col_name] = segments
     QC_output[, code_col_name] = codes
@@ -312,6 +310,10 @@
     QC_duplicatesLabel = QC_output[duplicatesLabel,]
   } 
   
+  ## Prepare label_nocode globally for reuse (labelHierarchy, singleChildCode, etc.)
+  label_nocode <- gsub("(\\d)|\\.", "", QC_output$Label)
+  label_nocode <- mapply(function(x, y) sub(x, "", y), QC_output$Code, label_nocode)
+  label_nocode <- tolower(str_squish(label_nocode))
   ## RULE 6 - Hierarchical label dependencies
   if (!is.null(labelHierarchy) && labelHierarchy != FALSE){
     QC_output$singleChildMismatch = 0
@@ -324,11 +326,6 @@
       child_ls = sapply(unique(parents_k), function(x) length(unique(na.omit(QC_output[which(QC_output[[paste0("Code", k)]] == x),  paste0("Code", k+1)]))))
       code_singlechild = QC_output[which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls == 1)) & !is.na(QC_output[[paste0("Code", k+1)]]) & QC_output$level == k +1), c(paste0("Code", k), paste0("Code", k+1))]
       code_multichild = QC_output[which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls > 1)) & !is.na(QC_output[[paste0("Code", k+1)]]) & QC_output$level == k +1), c(paste0("Code", k), paste0("Code", k+1))]
-      
-      #only label
-      label_nocode = gsub("(\\d)|\\.", "", QC_output$Label)
-      label_nocode = mapply(function(x,y) sub(x, "", y), QC_output$Code, label_nocode)
-      label_nocode = tolower(str_squish(label_nocode))
       
       #check if single child have different labels from their parents (=1)
       if (nrow(code_singlechild) != 0){
@@ -360,28 +357,21 @@
     cat("labelHierarchy is NULL so no treatment")
   }
   
-  ## RULE 7 -	Single child code compliance 
+  ## RULE 7 - Single child code compliance 
   if (!is.null(singleChildCode)) {
     
     if (file.exists(singleChildCode) && length(grep("csv", tolower(singleChildCode))) > 0) {
-      # Read the first line of the CSV file
+      # Lire le fichier et valider les entêtes
       first_line <- readLines(singleChildCode, n = 1)
-      
-      # Check for expected headers
-      expected_headers <- c("level", "singleCode", "multipleCode") 
-      # Split the first line using ","
+      expected_headers <- c("level", "singleCode", "multipleCode")
       header_columns <- unlist(strsplit(first_line, ",", fixed = TRUE))
       
       if (length(header_columns) == length(expected_headers) && all(header_columns == expected_headers)) {
-        # Les en-têtes correspondent, lire le fichier avec header = TRUE
         singleChildCode <- read.csv(singleChildCode, header = TRUE)
       } else {
         warning("Variable names do not match the expected headers for the SingleChildCode. Renaming and using the first columns.")
-        
-     
         singleChildCode <- read.csv(singleChildCode, header = FALSE)
-        singleChildCode <- singleChildCode[-1,]
-        # Rename of the column expected
+        singleChildCode <- singleChildCode[-1, ]
         colnames(singleChildCode) <- expected_headers
       }
       
@@ -392,268 +382,222 @@
       stop("The provided sequencing file is not a CSV file or does not exist.")
     }
     
-    QC_output$singleCodeError = 0
-    QC_output$multipleCodeError = 0
+    QC_output$singleCodeError <- 0
+    QC_output$multipleCodeError <- 0
     
-    for (k in 1:(nrow(lengths)-1)) {
-
-      if (unique(nchar(na.omit(QC_output[[paste0("segment", k+1)]]))) > 1) {
-        # warning(paste0("Single child code compliance cannot be checked at level ", k+1, " as segments of code have more than one character."))
-        QC_output$singleCodeError[which(nchar(na.omit(QC_output[[paste0("segment", k+1)]])) > 1)] = NA
-        QC_output$multipleCodeError[which(nchar(na.omit(QC_output[[paste0("segment", k+1)]])) > 1)] = NA
+    for (k in 1:(nrow(lengths) - 1)) {
+      
+      segment_kplus1 <- na.omit(QC_output[[paste0("segment", k + 1)]])
+      
+      if (length(segment_kplus1) == 0) {
+        next
       }
       
-      if (unique(nchar(na.omit(QC_output[[paste0("segment", k+1)]]))) == 1) {
+      if (length(unique(nchar(segment_kplus1))) > 1) {
+        QC_output$singleCodeError[which(nchar(QC_output[[paste0("segment", k + 1)]]) > 1)] <- NA
+        QC_output$multipleCodeError[which(nchar(QC_output[[paste0("segment", k + 1)]]) > 1)] <- NA
+        next
+      } else {
+        parents_k <- QC_output$Code[which(QC_output$level == k)]
         
-        #select only parents with children
-        parents_k = QC_output$Code[which(QC_output$level == k)]
-        #list the no. of child for each parent then select parents with single child / or multiple children
-        child_ls = sapply(unique(parents_k), function(x) length(unique(na.omit(QC_output[which(QC_output[[paste0("Code", k)]] == x),  paste0("Code", k+1)]))))
-        code_singlechild = QC_output[which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls == 1)) & !is.na(QC_output[[paste0("Code", k+1)]]) & QC_output$level == k +1), c(paste0("Code", k), paste0("Code", k+1))]
-        code_multichild = QC_output[which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls > 1)) & !is.na(QC_output[[paste0("Code", k+1)]]) & QC_output$level == k +1), c(paste0("Code", k), paste0("Code", k+1))]
+        child_ls <- sapply(unique(parents_k), function(x)
+          length(unique(na.omit(QC_output[which(QC_output[[paste0("Code", k)]] == x), paste0("Code", k + 1)]))))
         
-        level = singleChildCode[k, 1]
-        ##singleCode take all the code end by a "0"
-        single = singleChildCode[which(singleChildCode[,1] == level),2]
-        ## MultipleCode take all the code end as in the csv file #COULD BE LETTER AS WELL
-        multi = as.character(singleChildCode[which(singleChildCode[,1] == level),3])
+        code_singlechild <- QC_output[
+          which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls == 1)) &
+                  !is.na(QC_output[[paste0("Code", k + 1)]]) &
+                  QC_output$level == k + 1),
+          c(paste0("Code", k), paste0("Code", k + 1))
+        ]
         
-        #Determine the observed code end for single and multi children
-        single_code = str_sub(code_singlechild[,2], nchar(code_singlechild[,2]), nchar(code_singlechild[,2]))
-        multi_code = str_sub(code_multichild[,2], nchar(code_multichild[,2]), nchar(code_multichild[,2]))
+        code_multichild <- QC_output[
+          which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls > 1)) &
+                  !is.na(QC_output[[paste0("Code", k + 1)]]) &
+                  QC_output$level == k + 1),
+          c(paste0("Code", k), paste0("Code", k + 1))
+        ]
         
-        #Check if they are correct (single)
-        if (nrow(code_singlechild) != 0){
-          for (c in 1:nrow(code_singlechild)){
-            row_parent = which(QC_output$Code == as.character(code_singlechild[c,1]))
-            label_parent = label_nocode[row_parent]
-            row_child = which(QC_output$Code == as.character(code_singlechild[c,2]))
-            label_child = label_nocode[row_child]
-            
-            #check if single child have correct end code
-            end_code = str_sub(QC_output$Code[row_child], nchar(QC_output$Code[row_child]), nchar(QC_output$Code[row_child])) 
+        level <- singleChildCode[k, 1]
+        single <- singleChildCode[which(singleChildCode[, 1] == level), 2]
+        multi <- as.character(singleChildCode[which(singleChildCode[, 1] == level), 3])
+        
+        if (nrow(code_singlechild) != 0) {
+          for (c in 1:nrow(code_singlechild)) {
+            row_child <- which(QC_output$Code == as.character(code_singlechild[c, 2]))
+            end_code <- str_sub(QC_output$Code[row_child], nchar(QC_output$Code[row_child]), nchar(QC_output$Code[row_child]))
             if (!end_code %in% single) {
-              QC_output$singleCodeError[row_child] = 1
+              QC_output$singleCodeError[row_child] <- 1
             }
           }
         }
         
-        #Check if they are correct (multi)
-        if (nrow(code_multichild) != 0){
-          for (m in 1:nrow(code_multichild)){
-            row_parent = which(QC_output$Code == as.character(code_multichild[m,1]))
-            label_parent = label_nocode[row_parent]
-            row_child = which(QC_output$Code == as.character(code_multichild[m,2]))
-            label_child = label_nocode[row_child]
-            #check if multiple child have same labels to their parents (=9)
-            # if (label_parent == label_child) {
-            #   QC_output$singleChildMismatch[row_child] = 9
-            # }
-            
-            #check if multi child have correct end code
-            end_code = str_sub(QC_output$Code[row_child], nchar(QC_output$Code[row_child]), nchar(QC_output$Code[row_child])) 
-            
-            
-            # Check if end_code is equal to any value in multi
+        if (nrow(code_multichild) != 0) {
+          for (m in 1:nrow(code_multichild)) {
+            row_child <- which(QC_output$Code == as.character(code_multichild[m, 2]))
+            end_code <- str_sub(QC_output$Code[row_child], nchar(QC_output$Code[row_child]), nchar(QC_output$Code[row_child]))
             if (!end_code %in% unlist(strsplit(multi, ""))) {
-              QC_output$multipleCodeError[row_child] = 1
-              
+              QC_output$multipleCodeError[row_child] <- 1
             }
-            
           }
         }
       }
     }
     
-    
-    #identify mismatches
-    singleCodeError = which(QC_output$singleCodeError != 0)
+    singleCodeError <- which(QC_output$singleCodeError != 0)
     if (length(singleCodeError) > 0) {
-      warning(paste("Some single children been wrongly coded (see 'QC_singleCodeError'."))
+      warning("Some single children been wrongly coded (see 'QC_singleCodeError').")
     }
-    QC_singleCodeError = QC_output[singleCodeError,]
+    QC_singleCodeError <- QC_output[singleCodeError, ]
     
-    multipleCodeError = which(QC_output$multipleCodeError != 0)
+    multipleCodeError <- which(QC_output$multipleCodeError != 0)
     if (length(multipleCodeError) > 0) {
-      warning(paste("Some multiple children been wrongly coded (see 'QC_multipleCodeError'."))
+      warning("Some multiple children been wrongly coded (see 'QC_multipleCodeError').")
     }
-    QC_multipleCodeError = QC_output[multipleCodeError,] 
-  } 
+    QC_multipleCodeError <- QC_output[multipleCodeError, ]
+  }
   
   ## RULE 8 - Sequencing of codes
   if (!is.null(sequencing)) {
-    # if (file.exists(sequencing) && length(grep("csv", tolower(sequencing))) > 0) {
-    #   # Read the first line of the CSV file
-    #   first_line <- readLines(sequencing, n = 1)
-    #   
-    #   # Check for expected headers
-    #   expected_headers <- c("level", "multipleCode")
-    #   # Split the first line using ","
-    #   header_columns <- unlist(strsplit(first_line, ";", fixed = TRUE))
-    #   
-    #   if (length(header_columns) == length(expected_headers) && all(header_columns == expected_headers)) {
-    #     # Les en-têtes correspondent, lire le fichier avec header = TRUE
-    #     sequencing <- read.csv(sequencing, header = TRUE, sep = ";")
-    #   } else {
-    #     warning("Variable names do not match the expected headers for the sequencing file. Renaming and using the first columns.")
-    #     
-    #     # Lire le fichier avec header = FALSE
-    #     sequencing <- read.csv(sequencing, header = FALSE, sep = ";")
-    #     sequencing <- sequencing[-1,]
-    #     colnames(sequencing) <- expected_headers
-    #   }
-    #   
-    #   if (length(header_columns) > length(expected_headers)) {
-    #     warning("There are more columns than needed for Sequencing. Using the first columns.")
-    #   }
-    # } else {
-    #   stop("The provided sequencing file is not a CSV file or does not exist.")
-    # }
     
-
-     sequencing <- singleChildCode
-     #remove singleCode
-     sequencing <- sequencing[,-2]
-     # levels_to_filter <- unlist(strsplit(as.character(sequencing), " "))
-     levels_to_filter <- unique(sequencing$level)
-     # Filter the data of the user select 
-     sequencing <- sequencing[sequencing$level %in% levels_to_filter, ]
-  
-    QC_output$gapBefore = 0
-    QC_output$lastSibling = 0
+    sequencing <- singleChildCode
+    sequencing <- sequencing[, -2]  # Remove singleCode
+    levels_to_filter <- unique(sequencing$level)
+    sequencing <- sequencing[sequencing$level %in% levels_to_filter, ]
+    
+    QC_output$gapBefore <- 0
+    QC_output$lastSibling <- 0
     lengths$level <- seq_len(nrow(lengths))
     lengths2 <- lengths[lengths$level %in% levels_to_filter, ]
     lengths2$level <- NULL
-      #lengths2
-    for (k in 1:(nrow(lengths2))) {
+    
+    for (k in 1:nrow(lengths2)) {
       
-      if (unique(nchar(na.omit(QC_output[[paste0("segment", k+1)]]))) > 1) {
-        warning(paste0("Sequencing of codes cannot be checked at level ", k+1, " as segments of code have more than one character.")) 
-        QC_output$gapBefore[which(nchar(na.omit(QC_output[[paste0("segment", k+1)]])) > 1)] = NA
-        QC_output$lastSibling[which(nchar(na.omit(QC_output[[paste0("segment", k+1)]])) > 1)] = NA
+      segment_kplus1 <- na.omit(QC_output[[paste0("segment", k + 1)]])
+      
+      if (length(unique(nchar(segment_kplus1))) > 1) {
+        warning(paste0("Sequencing of codes cannot be checked at level ", k + 1, " as segments of code have more than one character."))
+        QC_output$gapBefore[which(nchar(QC_output[[paste0("segment", k + 1)]]) > 1)] <- NA
+        QC_output$lastSibling[which(nchar(QC_output[[paste0("segment", k + 1)]]) > 1)] <- NA
+        next
       }
       
-      if (unique(nchar(na.omit(QC_output[[paste0("segment", k+1)]]))) == 1) {
-        
-        #select only parents with children
-        parents_k = QC_output$Code[which(QC_output$level == k)]
-        #list the no. of child for each parent then select parents with single child / or multiple children
-        child_ls = sapply(unique(parents_k), function(x) length(unique(na.omit(QC_output[which(QC_output[[paste0("Code", k)]] == x),  paste0("Code", k+1)]))))
-        code_multichild = QC_output[which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls > 1)) & !is.na(QC_output[[paste0("Code", k+1)]]) & QC_output$level == k +1), c(paste0("Code", k), paste0("Code", k+1))]
-        
-        
-        level = sequencing$level[k]
-        
-        ## MultipleCode take all the code end as in the csv file #COULD BE LETTER AS WELL
-         multi = as.character(sequencing[which(sequencing[,1] == level),2])
-             if (length(multi) > 0) {
-         multi = strsplit(multi, "")[[1]]
-                 } else {
-                     multi = NULL
-                 }
-        #Determine the observed code end for single and multi children
-        multi_code = str_sub(code_multichild[,2], nchar(code_multichild[,2]), nchar(code_multichild[,2]))
-        #identify last code for multi children
-        mcode_ls = sapply(unique(code_multichild[,1]), function(x) code_multichild[,2][which(code_multichild[,1] == x)])
-        ecode_ls = lapply(mcode_ls, function(x) str_sub(x, nchar(x), nchar(x)))
-        
-        ## to avoid confusions I have added to take the first element only, but needs to be changed
-        last_dig = unlist(lapply(ecode_ls, function(x) which(x == max(x))[1]))
-        last_code = as.vector(mapply(function(x, y) x[y], mcode_ls, last_dig))
-        
-        #identify code with gap before
-        gap_find = lapply(ecode_ls, function(x) match(multi, x))
-        code_gap = lapply(gap_find, function(x) which(is.na(x)) + 1)
-        gapbefore_dig = mapply(function(x, y) na.omit(x[y]), gap_find, code_gap)
-        gapbefore_code = as.vector(unlist(mapply(function(x, y) x[y], mcode_ls, gapbefore_dig)))
-        
-        #flag in the QC_output
-        QC_output$lastSibling[which(QC_output$Code %in% last_code)] = 1
-        QC_output$gapBefore[which(QC_output$Code %in% gapbefore_code)] = 1
-        row_child = which(QC_output$level == k & QC_output$multipleCodeError == 1)
-        QC_output$gapBefore[row_child] = 9
+      # Bloc de sécurisation des segments (si utilisé dans l’analyse)
+      segments <- rep(NA, nrow(QC_output))
+      codes <- rep(NA, nrow(QC_output))
+      for (j in 1:nrow(QC_output)) {
+        if (!is.null(QC_output$level[j]) &&
+            !is.na(QC_output$level[j]) &&
+            !is.na(QC_output$Code[j]) &&
+            nchar(QC_output$Code[j]) >= lengths2[k, "chare"] &&
+            QC_output$level[j] >= k + 1) {
+          
+          segments[j] <- substr(QC_output$Code[j], lengths2[k, "charb"], lengths2[k, "chare"])
+          codes[j] <- substr(QC_output$Code[j], 1, lengths2[k, "chare"])
+          
+        } else {
+          segments[j] <- NA
+          codes[j] <- NA
+        }
       }
       
-      #identify gab before 
-      gap = which(QC_output$gapBefore == 1)
-      if (length(gap) > 0) {
-        warning(paste("There are gab in the sequencing of multiple children coding (see 'QC_gapBefore')."))
-      }
-        QC_gapBefore = QC_output[gap,]
+      # Parents with children
+      parents_k <- QC_output$Code[which(QC_output$level == k)]
+      child_ls <- sapply(unique(parents_k), function(x) length(unique(na.omit(
+        QC_output[which(QC_output[[paste0("Code", k)]] == x), paste0("Code", k + 1)]
+      ))))
       
-      #identify last sibling -
-      lastSibling = which(QC_output$lastSibling == 1)
-      QC_lastSibling = QC_output[lastSibling,] 
+      code_multichild <- QC_output[which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls > 1)) &
+                                           !is.na(QC_output[[paste0("Code", k + 1)]]) &
+                                           QC_output$level == k + 1),
+                                   c(paste0("Code", k), paste0("Code", k + 1))]
       
+      level <- sequencing$level[k]
+      multi <- as.character(sequencing[which(sequencing[, 1] == level), 2])
+      multi <- if (length(multi) > 0) strsplit(multi, "")[[1]] else NULL
+      
+      multi_code <- str_sub(code_multichild[, 2], nchar(code_multichild[, 2]), nchar(code_multichild[, 2]))
+      
+      mcode_ls <- sapply(unique(code_multichild[, 1]), function(x) code_multichild[, 2][which(code_multichild[, 1] == x)])
+      ecode_ls <- lapply(mcode_ls, function(x) str_sub(x, nchar(x), nchar(x)))
+      
+      last_dig <- unlist(lapply(ecode_ls, function(x) which(x == max(x, na.rm = TRUE))[1]))
+      last_code <- as.vector(mapply(function(x, y) x[y], mcode_ls, last_dig))
+      
+      gap_find <- lapply(ecode_ls, function(x) match(multi, x))
+      code_gap <- lapply(gap_find, function(x) which(is.na(x)) + 1)
+      gapbefore_dig <- mapply(function(x, y) na.omit(x[y]), gap_find, code_gap)
+      gapbefore_code <- as.vector(unlist(mapply(function(x, y) x[y], mcode_ls, gapbefore_dig)))
+      
+      QC_output$lastSibling[which(QC_output$Code %in% last_code)] <- 1
+      QC_output$gapBefore[which(QC_output$Code %in% gapbefore_code)] <- 1
+      
+      row_child <- which(QC_output$level == k & QC_output$multipleCodeError == 1)
+      QC_output$gapBefore[row_child] <- 9
     }
+    
+    gap <- which(QC_output$gapBefore == 1)
+    if (length(gap) > 0) {
+      warning("There are gaps in the sequencing of multiple children coding (see 'QC_gapBefore').")
+    }
+    QC_gapBefore <- QC_output[gap, ]
+    
+    lastSibling <- which(QC_output$lastSibling == 1)
+    QC_lastSibling <- QC_output[lastSibling, ]
   }
+  
   
   ## RESULTS
   colnames(QC_output)[1:1] <- classificationName
-  ## RESULTS
+  
+  # Always start with QC_output
   return_ls <- list("QC_output" = QC_output)
   
-  # Add the result in QC_output
-  return_ls <- list(
-    "QC_output" = QC_output,
-    "QC_noLevels" = QC_noLevels,
-    "QC_duplicatesCode" = QC_duplicatesCode,
-    "QC_childless" = QC_childless,
-    "QC_orphan" = QC_orphan,
-    "QC_duplicatesLabel" = QC_duplicatesLabel,
-   "QC_singleChildMismatch" = QC_singleChildMismatch
-  )
-  # Add the dataframe from what the user uses as parameters
-  if (!is.null(fullHierarchy)) {
-    if (!fullHierarchy) {
-      # Add codes childless
-      return_ls[["QC_childless"]] <- QC_childless
-      return_ls[["QC_orphan"]]  <-QC_orphan
-    }
+  # Add optional data frames only if they exist
+  if (exists("QC_noLevels")) {
+    return_ls[["QC_noLevels"]] <- QC_noLevels
   }
-  
-  if (!is.null(labelUniqueness)) {
-    if (!labelUniqueness) {
-      # Add duplicate label
-      return_ls[["QC_duplicatesLabel"]] <- QC_duplicatesLabel
-    }
+  if (exists("QC_duplicatesCode")) {
+    return_ls[["QC_duplicatesCode"]] <- QC_duplicatesCode
   }
-  
-  if (!is.null(labelHierarchy)) {
-    if (!labelHierarchy) {
-      # add singleChildMismatch
-      return_ls[["QC_singleChildMismatch"]] <- QC_singleChildMismatch
-    }
+  if (exists("QC_duplicatesLabel")) {
+    return_ls[["QC_duplicatesLabel"]] <- QC_duplicatesLabel
   }
-  
-  if (!is.null(singleChildCode)) {
-    # Add Single & multiple code error 
+  if (exists("QC_orphan")) {
+    return_ls[["QC_orphan"]] <- QC_orphan
+  }
+  if (exists("QC_childless")) {
+    return_ls[["QC_childless"]] <- QC_childless
+  }
+  if (exists("QC_singleChildMismatch")) {
+    return_ls[["QC_singleChildMismatch"]] <- QC_singleChildMismatch
+  }
+  if (exists("QC_singleCodeError")) {
     return_ls[["QC_singleCodeError"]] <- QC_singleCodeError
+  }
+  if (exists("QC_multipleCodeError")) {
     return_ls[["QC_multipleCodeError"]] <- QC_multipleCodeError
   }
-  
-  if (!is.null(sequencing)) {
-    if (!missing(sequencing)) {
-      # Add sequencing
-      return_ls[["QC_gapBefore"]] <- QC_gapBefore
-      return_ls[["QC_lastSibling"]] <- QC_lastSibling
-    }
+  if (exists("QC_gapBefore")) {
+    return_ls[["QC_gapBefore"]] <- QC_gapBefore
+  }
+  if (exists("QC_lastSibling")) {
+    return_ls[["QC_lastSibling"]] <- QC_lastSibling
   }
   
-  # Add the result in QC_output
+  # Write CSV output if requested
   if (!is.null(CSVout)) {
     if (is.logical(CSVout) && CSVout == TRUE) {
       name <- names(QC_output)[1]
-      file_name <- paste0("QC_output_", classificationName,".csv")
+      file_name <- paste0("QC_output_", classificationName, ".csv")
       path_file <- file.path(getwd(), file_name)
       write.csv(QC_output, path_file, row.names = FALSE)
-      message(paste0("The table was saved in ", getwd(), file_name))
+      message(paste0("The table was saved in ", getwd(), "/", file_name))
     } else if (is.character(CSVout)) {
       write.csv(QC_output, CSVout, row.names = FALSE)
     }
   }
   
-  
   return(return_ls)
+  
   }
   

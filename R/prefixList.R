@@ -1,10 +1,10 @@
-
 prefixList <- function(endpoint, prefix = NULL) {
   endpoint <- toupper(endpoint)
   if (!endpoint %in% c("CELLAR", "FAO")) {
     stop("`endpoint` must be either 'CELLAR' or 'FAO'.")
   }
-    prefix_init <- as.matrix(rbind(
+  
+  prefix_init <- as.matrix(rbind(
     "PREFIX dc: <http://purl.org/dc/elements/1.1/>",
     "PREFIX dct: <http://purl.org/dc/terms/>",
     "PREFIX cb: <http://cbasewrap.ontologycentral.com/vocab#>",
@@ -26,12 +26,12 @@ prefixList <- function(endpoint, prefix = NULL) {
   # --- Retrieve dynamic prefixes from the classification list ---
   res <- classificationList(endpoint)
   
-  if (!is.matrix(res) || ncol(res) < 3) {
+  if (!is.data.frame(res) || !all(c("Prefix", "URI") %in% colnames(res))) {
     stop("Unexpected structure returned by classificationList().")
   }
   
-  uri <- res[, 3]
-  prefix_endpoint <- gsub("\\.", "", res[, 1])  # Remove dots from prefix names
+  uri <- res$URI
+  prefix_endpoint <- gsub("\\.", "", res$Prefix)
   
   # --- Construct PREFIX declarations from endpoint metadata ---
   dynamic_prefixes <- as.matrix(paste0("PREFIX ", prefix_endpoint, ": <", uri, "/>"))
@@ -56,4 +56,3 @@ prefixList <- function(endpoint, prefix = NULL) {
   
   return(prefix_all)
 }
-
