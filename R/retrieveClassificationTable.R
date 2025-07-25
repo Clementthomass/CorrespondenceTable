@@ -1,7 +1,7 @@
 #' @title Retrieve classifications and correspondence tables stored as Linked Open Data
 #' @description Retrieve correspondence tables from the CELLAR and FAO repositories.
 #' @param endpoint Character. SPARQL endpoint to query. Valid values: \code{"CELLAR"} or \code{"FAO"}.
-#' @param prefix Character. Prefix to be used in the SPARQL query. Can be generated with \code{prefixList()}.
+#' @param prefix The namespace prefix identifying the classification. You can retrieve available prefixes using the \code{classificationList()} function.
 #' @param conceptScheme Character. Unique identifier associated with a specific classification table.
 #' @param level Character. Level to retrieve in a hierarchical classification. Default is \code{"ALL"}.
 #' @param language Character. Language for labels, includes, and excludes. Default: \code{"en"}.
@@ -14,7 +14,7 @@
 #'
 #' @details
 #' The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
-#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), is that is queries live SPARQL endpoints online.
 #' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
 #' This is useful for building vignettes or offline testing.
 #'

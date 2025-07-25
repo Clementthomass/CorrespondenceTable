@@ -1,14 +1,22 @@
-#' @title Retrieve lists of classification tables from the CELLAR and FAO repositories
+#' @title List available classification schemes from CELLAR or FAO
 #' @description Retrieve a list of classification tables from the CELLAR and FAO repositories.
 #' @param endpoint One of "CELLAR", "FAO", or "ALL" (default).
 #' @param showQuery Logical. If TRUE, returns the SPARQL query along with the data.
 #' @details
 #' The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
-#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), is that is queries live SPARQL endpoints online.
 #' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
 #' This is useful for building vignettes or offline testing.
 #'
-#' @return A data frame (if endpoint is "CELLAR" or "FAO"), or a named list of two data frames (if endpoint is "ALL").
+#' @return 
+#' If \code{endpoint} is "CELLAR" or "FAO", the function returns a data frame with the following columns:
+#' \describe{
+#'   \item{Prefix}{The classification prefix (e.g., domain or acronym)}
+#'   \item{ConceptScheme}{The identifier for the concept scheme}
+#'   \item{URI}{The full URI of the concept scheme}
+#'   \item{Title}{The human-readable title of the classification scheme}
+#' }
+#' If \code{endpoint} is "ALL", the function returns a named list with two such data frames: one for "CELLAR" and one for "FAO".
 #'
 #' @import httr
 #' @import jsonlite
@@ -28,7 +36,10 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
     ))
   }
   
-  # Use static files when requested (for vignettes, etc.)
+  # When the global option `useLocalDataForVignettes` is set to TRUE,
+  # this function returns pre-saved static data instead of querying SPARQL endpoints.
+  # This behaviour ensures that vignettes build reproducibly, even without internet access.
+  # The corresponding CSV files are stored under inst/extdata in the package.
   if (getOption("useLocalDataForVignettes", FALSE)) {
     path <- system.file("extdata", paste0("classificationList_", endpoint, ".csv"), package = "correspondenceTables")
     if (file.exists(path)) {
@@ -95,8 +106,14 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
       title <- df[, 3]
     }
     
-    result <- cbind(prefix, conceptscheme, uri, title)
-    colnames(result) <- c("Prefix", "ConceptScheme", "URI", "Title")
+    result <- data.frame(
+      Prefix = prefix,
+      ConceptScheme = conceptscheme,
+      URI = uri,
+      Title = title,
+      stringsAsFactors = FALSE
+    )
+    
     rownames(result) <- 1:nrow(result)
     
     if (showQuery) {

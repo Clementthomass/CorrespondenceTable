@@ -2,7 +2,7 @@
 % Please edit documentation in R/classificationList.R
 \name{classificationList}
 \alias{classificationList}
-\title{Retrieve lists of classification tables from the CELLAR and FAO repositories}
+\title{List available classification schemes from CELLAR or FAO}
 \usage{
 classificationList(endpoint = "ALL", showQuery = FALSE)
 }
@@ -12,14 +12,21 @@ classificationList(endpoint = "ALL", showQuery = FALSE)
 \item{showQuery}{Logical. If TRUE, returns the SPARQL query along with the data.}
 }
 \value{
-A data frame (if endpoint is "CELLAR" or "FAO"), or a named list of two data frames (if endpoint is "ALL").
+If \code{endpoint} is "CELLAR" or "FAO", the function returns a data frame with the following columns:
+\describe{
+  \item{Prefix}{The classification prefix (e.g., domain or acronym)}
+  \item{ConceptScheme}{The identifier for the concept scheme}
+  \item{URI}{The full URI of the concept scheme}
+  \item{Title}{The human-readable title of the classification scheme}
+}
+If \code{endpoint} is "ALL", the function returns a named list with two such data frames: one for "CELLAR" and one for "FAO".
 }
 \description{
 Retrieve a list of classification tables from the CELLAR and FAO repositories.
 }
 \details{
 The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
-The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+The default behaviour (when the option is not set, or set to something else than \code{TRUE}), is that is queries live SPARQL endpoints online.
 When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
 This is useful for building vignettes or offline testing.
 }

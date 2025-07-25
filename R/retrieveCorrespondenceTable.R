@@ -3,10 +3,8 @@
 #' @param endpoint SPARQL endpoints provide a standardized way to access data sets,
 #' making it easier to retrieve specific information or perform complex queries on linked data.
 #' The valid values are \code{"CELLAR"} or \code{"FAO"}.
-#' @param prefix Prefixes are typically defined at the beginning of a SPARQL query
-#' and are used throughout the query to make it more concise and easier to read.
-#' Multiple prefixes can be defined in a single query to cover different namespaces used in the dataset.
-#' The function 'prefixList()' can be used to generate the prefixes for the selected correspondence table.
+#' @param prefix The namespace prefix identifying the correspondence table to retrieve.
+#' Available prefixes can be found using the \code{correspondenceTableList()} function.
 #' @param ID_table Refers to a unique identifier associated with a specific correspondence table.
 #' The ID_table can be obtained by utilizing the "correspondenceTableList()" function.
 #' @param language Refers to the specific language used for providing label, include and exclude information in the selected correspondence table.
@@ -42,7 +40,7 @@
 
 #' @details
 #' The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
-#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), it queries live SPARQL endpoints online.
+#' The default behaviour (when the option is not set, or set to something else than \code{TRUE}), is that queries live SPARQL endpoints online.
 #' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
 #' This is useful for building vignettes or offline testing.
 

@@ -42,7 +42,10 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   if (!is.logical(longestBcodeOnly)) {
     stop("Argument 'longestBcodeOnly' must be TRUE or FALSE (logical).")
   }
-  
+  # If AB is provided as a path to a file, check that the file exists
+  if (is.character(AB) && !file.exists(AB)) {
+    stop(paste0("File not found: ", AB, ". Please check the path and filename of the correspondence table."))
+  }
   ab_data <- testInputTable("Correspondence table (AB)", AB)
   
   ColumnNames_ab <- colnames(ab_data)[1:2]
