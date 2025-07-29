@@ -1,5 +1,8 @@
 #' @title List available classification schemes from CELLAR or FAO
-#' @description Retrieve a list of classification tables from the CELLAR and FAO repositories.
+#' @description This function extracts, from the endpoint of interest (CELLAR or FAO), 
+#' a list of all classifications that are available in that endpoint.
+#' Apart from basic information, the list also contains, for each classification listed,
+#' those elements (prefix name, URI, key, concept scheme, and title) that are necessary for parameterising a SPARQL call to extract the actual classification structure.
 #' @param endpoint One of "CELLAR", "FAO", or "ALL" (default).
 #' @param showQuery Logical. If TRUE, returns the SPARQL query along with the data.
 #' @details
@@ -10,13 +13,14 @@
 #'
 #' @return 
 #' If \code{endpoint} is "CELLAR" or "FAO", the function returns a data frame with the following columns:
-#' \describe{
-#'   \item{Prefix}{The classification prefix (e.g., domain or acronym)}
-#'   \item{ConceptScheme}{The identifier for the concept scheme}
-#'   \item{URI}{The full URI of the concept scheme}
-#'   \item{Title}{The human-readable title of the classification scheme}
+#' \itemize{
+#'   \item \strong{Prefix}: The classification prefix (e.g., domain or acronym)
+#'   \item \strong{ConceptScheme}: The identifier for the concept scheme
+#'   \item \strong{URI}: The full URI of the concept scheme
+#'   \item \strong{Title}: The human-readable title of the classification scheme
 #' }
-#' If \code{endpoint} is "ALL", the function returns a named list with two such data frames: one for "CELLAR" and one for "FAO".
+#'
+#' If \code{endpoint} is "ALL", the function returns a named list with two such data frames: one for \code{"CELLAR"} and one for \code{"FAO"}.
 #'
 #' @import httr
 #' @import jsonlite
@@ -84,6 +88,8 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
     
     response <- POST(url = endpoint_url, httr::accept("text/csv"), body = list(query = SPARQL.query), encode = "form")
     df <- read.csv(text = content(response, "text"), sep = ",")
+    print(head(df))
+    print(str(df))
     
     if (endpoint == "CELLAR") {
       str_dt <- t(sapply(df[, 1], function(x) unlist(strsplit(as.character(x), "/+"))))
@@ -95,18 +101,28 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
       str_dt <- strsplit(df[, 1], "/")
       mat_str_dt <- suppressWarnings(do.call(rbind, str_dt))
       df_str_dt <- as.data.frame(mat_str_dt)
+      
       prefix <- df[, 2]
-      conceptscheme <- paste0(df_str_dt[, 5], df_str_dt[, 6])
+      
+      if (ncol(df_str_dt) >= 6) {
+        conceptscheme <- paste0(df_str_dt[, 5], df_str_dt[, 6])
+      } else {
+        conceptscheme <- rep("unknown", nrow(df))
+      }
       
       # NOTE: workaround for FAO URIs
       # FAO endpoint sometimes returns incomplete URIs, so we use the local fallback as backup.
       # (This behavior was introduced by Bienvenu, Loïc)
       # See review request 0.10.22/015
-      uri <- read.csv(system.file("extdata", "classificationlList_FAO.csv", package = "correspondenceTables"))[, 3]
-      title <- df[, 3]
+      uri_path <- system.file("extdata", "classificationList_FAO.csv", package = "correspondenceTables")
+      if (file.exists(uri_path)) {
+        uri <- read.csv(uri_path)[, 3]
+      } else {
+        uri <- df[, 1]
+      }
+            title <- df[, 3]
     }
-    
-    result <- data.frame(
+      result <- data.frame(
       Prefix = prefix,
       ConceptScheme = conceptscheme,
       URI = uri,
