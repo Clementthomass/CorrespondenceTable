@@ -13,16 +13,20 @@ classificationList(endpoint = "ALL", showQuery = FALSE)
 }
 \value{
 If \code{endpoint} is "CELLAR" or "FAO", the function returns a data frame with the following columns:
-\describe{
-  \item{Prefix}{The classification prefix (e.g., domain or acronym)}
-  \item{ConceptScheme}{The identifier for the concept scheme}
-  \item{URI}{The full URI of the concept scheme}
-  \item{Title}{The human-readable title of the classification scheme}
+\itemize{
+  \item \strong{Prefix}: The classification prefix (e.g., domain or acronym)
+  \item \strong{ConceptScheme}: The identifier for the concept scheme
+  \item \strong{URI}: The full URI of the concept scheme
+  \item \strong{Title}: The human-readable title of the classification scheme
 }
-If \code{endpoint} is "ALL", the function returns a named list with two such data frames: one for "CELLAR" and one for "FAO".
+
+If \code{endpoint} is "ALL", the function returns a named list with two such data frames: one for \code{"CELLAR"} and one for \code{"FAO"}.
 }
 \description{
-Retrieve a list of classification tables from the CELLAR and FAO repositories.
+This function extracts, from the endpoint of interest (CELLAR or FAO), 
+a list of all classifications that are available in that endpoint.
+Apart from basic information, the list also contains, for each classification listed,
+those elements (prefix name, URI, key, concept scheme, and title) that are necessary for parameterising a SPARQL call to extract the actual classification structure.
 }
 \details{
 The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
