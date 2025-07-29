@@ -18,7 +18,7 @@
 #' @return
 #' \code{dataStructure()} returns a table with one line per hierarchical level and the following columns:        
 #'  \itemize{
-#'     \item Concept_Scheme: the taxonomy of the SKOS object to be retrieved
+#'     \item Concept_Scheme: the classification for which the data structure is listed
 #'     \item Depth: the hierarchical position of each level
 #'     \item Level: the label (for the given language) assigned to each level
 #'     \item Count: the number of categories at each level
