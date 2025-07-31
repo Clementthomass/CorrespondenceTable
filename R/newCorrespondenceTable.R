@@ -1,5 +1,5 @@
 #' @title Correspondence table creation
-#' @description Create a candidate correspondence table between two classifications via pivots
+#' @description Create a candidate correspondence table between two classifications based on their correspondences with intermediate classifications
 #' @param Tables A string of type character containing the name of a csv file which contains the names of the files that
 #'   contain the classifications and the intermediate correspondence tables OR a list of vectors with the names of the dataframes
 #'   classifications and the intermediate correspondence tables (see "Details" below).
