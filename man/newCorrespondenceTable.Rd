@@ -53,7 +53,7 @@ The other values is \code{FALSE}, which shows redundant records together with th
 }
 }
 \description{
-Create a candidate correspondence table between two classifications via pivots
+Create a candidate correspondence table between two classifications based on their correspondences with intermediate classifications
 }
 \details{
 File and file name requirements:
