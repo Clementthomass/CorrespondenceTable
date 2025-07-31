@@ -1,5 +1,5 @@
 #' @title Correspondence table creation
-#' @description Update a correspondence table when one of the classifications has changed
+#' @description Update the correspondence table between two classifications when one out of them has been updated
 #' @param A A string of the type \code{character} containing the name of a csv file that contains the original classification A.
 #' @param B A string of the type \code{character} containing the name of a csv file that contains classification B.
 #' @param AStar A string of the type \code{character} containing the name of a csv file that contains the updated version A*.
