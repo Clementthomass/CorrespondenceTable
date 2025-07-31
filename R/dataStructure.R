@@ -1,5 +1,5 @@
 #' @title Retrieve information about the structure of each classification table from the CELLAR and FAO repositories
-#' @description Retrieve information about the structure of each classification table from the CELLAR and FAO repositories. This information can subsequently be used when parameterising calls to retrieveClassificationTable (to ensure that you extract information for levels and languages that are actually contained in the data of the endpoint for the classification in question).
+#' @description Retrieve information about the structure of a classification table (from either CELLAR and FAO repositories)
 #' @param endpoint SPARQL endpoints provide a standardized way to access data sets, 
 #' making it easier to retrieve specific information or perform complex queries on linked data.
 #' The valid values are \code{"CELLAR"} or \code{"FAO"}.
@@ -29,21 +29,23 @@
 #' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
 #' This is useful for building vignettes or offline testing.
 #' @examples
-#' {
-#'    ## Obtain a list including the structure of each classification available 
-#'    ## CELLAR
-#'    #data_CELLAR = list()
-#'    #endpoint = "CELLAR"
-#'    #list_data = classificationList("ALL")
-#'   
-   # #for (i in 1:nrow(list_data$CELLAR)){
-   #   #  prefix = list_data$CELLAR[i,1]
-   #  #   conceptScheme = list_data$CELLAR[i,2]
-   # #   data_CELLAR[[i]] = dataStructure(endpoint, prefix, conceptScheme)
-   ## }
-   ## names(data_CELLAR) = list_data$CELLAR[,1]
+#' # Minimal example using CELLAR endpoint
+#' endpoint <- "CELLAR"
+#' prefix <- "nace2"
+#' conceptScheme <- "nace2"
+#' dataStructure(endpoint, prefix, conceptScheme)
+#' \dontrun{
+#' # Full example: get data for all CELLAR codes
+#' list_data <- classificationList("ALL")
+#' data_CELLAR <- list()
+#' for (i in 1:nrow(list_data$CELLAR)) {
+#'   prefix <- list_data$CELLAR[i, 1]
+#'   conceptScheme <- list_data$CELLAR[i, 2]
+#'   data_CELLAR[[i]] <- dataStructure("CELLAR", prefix, conceptScheme)
+#' }
+#' names(data_CELLAR) <- list_data$CELLAR[, 1]
+#' }
 
-#'}
   
 
 dataStructure = function(endpoint, prefix, conceptScheme, language = "en", showQuery = FALSE) {
