@@ -52,9 +52,8 @@ testInputTable <- function(arg_name, arg_value, all_ch = FALSE) {
   })
 
   if (length(errors) > 0) {
-    cat("Errors encountered:\n", paste(errors, collapse = "\n"), "\n")
-    stop("Errors were encountered. Execution halted.")
+    stop(paste(errors, collapse = "\n"))
   }
-
+  
   invisible(NULL)  # Use invisible() to suppress the NULL return from being printed
 }
