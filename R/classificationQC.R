@@ -1,9 +1,9 @@
 #' @title Perform quality control on a classification
 #' @description Perform quality control on a classification
-#' @param classification Refers to a classification in a CSV file structured with two columns: "codes" and "labels." If the classification is provided as a CSV file. This argument is mandatory.
-#' @param lengthsFile Refers to a CSV file (one record per hierarchical level) containing the initial and last positions of the segment of the code specific to that level. The number of lines in this CSV file implicitly defines the number of hierarchical levels of the classification. This argument is mandatory.
-#' @param fullHierarchy It is used to test the fullness of hierarchy. If the parameter \code{fullHierarchy} is set to \code{FALSE}, the function will check that every position at a lower level than 1 should have parents all the way up to level 1. If set to \code{TRUE}, it will additionally check that any position at a higher level than k should have children all the way down to level k.
-#' @param labelUniqueness It is used to test that positions at the same hierarchical level have unique labels. If set to \code{TRUE}, the compliance is checked, and positions with duplicate labels are marked as 1 in the "duplicateLabel" column, while positions with unique labels are marked as 0.
+#' @param classification Either a dataframe or (the name of a) CSV file with two columns: the code ('codes') and labels ('labels') of the classification which is to be quality controlled. This argument is mandatory
+#' @param lengths Either a dataframe or (the name of a) CSV file with(one line per hierarchical level) initial and last positions of the segment of the code specific to that level. The number of lines in this dataframe (CSV file) implicitly defines k the (number of hierarchical levels of the classification). This argument is mandatory.
+#' @param fullHierarchy This parameter is used to indicate wheter to test that the classification is balanced. If the parameter \code{fullHierarchy} is set to \code{FALSE}, the function will check that every position at a lower level than 1 should have parents all the way up to level 1(i.e that there are no 'orphaned' positions. If it set to \code{TRUE}, it will additionally check that any position at a higher level than k should have children all the way down to level k.
+#' @param labelUniqueness this parameter is used to indicate wheter that positions at the same hierarchical level have unique labels. If it set to \code{TRUE}, the compliance is checked; (and the ouptu dataframe_QC ducplicatesLabel is added to the list that is returned) positions with duplicate labels are marked as 1 in the "duplicateLabel" column, while positions with unique labels are marked as 0.
 #' @param labelHierarchy It is used to ensure that the hierarchical structure of labels is respected. When set to \code{TRUE}, the function will check that single children have a label identical to the label of their parent and that if a position has a label identical to the label of one of its children, then that position should only have a single child.
 #' @param singleChildCode It refers to a CSV file with specific formatting to define valid codes for each level. If this parameter is not \code{NULL}, then it checks compliance with coding rules for single children and non-single children, as provided in the CSV file.
 #' @param sequencing It refers to a CSV file to define the admissible codes for multiple children at each level. If this parameter is not \code{NULL}, the function checks the sequencing of multiple children codes within each level, as provided in the CSV file.
@@ -16,18 +16,21 @@
 #' @return
 #'
 #' \code{classificationQC()} returns a list of data frames identifying possible cases violating the formatting requirements. The databases returned depend on the rules checked. The databases produced are:
-#' - \code{QC_output}: The dataset includes all the original records in the classification. The "Level" column refers to the hierarchical levels of each position. Each code will be parsed into segment_k (column "Segmentk") and code_k (column "Codek"), corresponding to the code and segment at hierarchical level k, respectively. Additional columns are included to flag the behavior in each position:
-#'   - \code{Orphan}: If \code{fullHierarchy} is set to \code{FALSE}, an "orphan" is a position at a hierarchical level (j) greater than 1 that lacks a parent at the hierarchical level (j-1) immediately above it. Orphan positions are marked with a value of 1 in the "Orphan" column, indicating their orphan status; otherwise, they are assigned a value of 0.
-#'   - \code{Childless}: If \code{fullHierarchy} is set to \code{TRUE}, a "childless" position is one at a hierarchical level (j) less than k that lacks a child at the hierarchical level (j+1) immediately below it. Childless positions are marked with a value of 1 in the "Childless" column, indicating their childless status; otherwise, they are assigned a value of 0.
-#'   - \code{DuplicateLabel}: A new column in the output that flags positions involved in duplicate label situations (where multiple positions share the same label at the same hierarchical level) by assigning them a value of 1, while positions with unique labels are assigned a value of 0.
-#'   - \code{SingleChildMismatch}: A column in the output provides information about label hierarchy consistency in a hierarchical classification system. It indicates:
-#'     - Value 1: Mismatched labels between a parent and its single child.
-#'     - Value 9: Parent-child pairs with matching labels, but the parent has multiple children.
-#'     - Value 0: Compliance with the label hierarchy rule, indicating no mismatches or violations.
-#'   - \code{SingleCodeError}: A column serves as a flag indicating whether a position is a single child and whether the corresponding "singleCode" contains the level j segment. A value of 1 signifies a mismatch, while a value of 0 indicates compliance with the coding rules.
-#'   - \code{MultipleCodeError}: A column serves as a flag indicating whether a position is not a single child and whether the corresponding "multipleCodej" contains the level j segment. A value of 1 signifies a mismatch, while a value of 0 indicates compliance with the coding rules.
-#'   - \code{GapBefore}: The column is a flag that indicates whether there is a gap before a specific code within its level in the hierarchy. A gap refers to the absence of a sibling code that should logically precede the given code. In other words, it checks if there is a missing code in the sequence before a particular code.
-#'   - \code{LastSibling}: The "LastSibling" column is a flag that identifies whether a code is the last sibling code at its level in the hierarchy. It is only relevant for codes with multiple children, meaning there are other codes at the same level with the same parent.
+#' - \code{QC_output}: The dataset includes all the original records in the classification.
+#'    The "level" column refers to the hierarchical levels of each position.
+#'    With k being the maximum number of levels of the classification, each code will be parsed into segment₁, segment₂, ..., segmentₖ (columns "segment1", "segment2", ...), and Code₁, Code₂, ..., Codeₖ (columns "Code1", "Code2", ...), with segmentᵢ and Codeᵢ corresponding to the segment and code at hierarchical level i, respectively.For records less granular than k, NA will be indicated for the more granular segments (as they will logically be absent) 
+#'    Additional columns are included to flag the features (mainly compliance) of each positions:
+#'   - \code{orphan}: If \code{fullHierarchy} is set to \code{FALSE}, an "orphan" is a position at a hierarchical level (j) greater than 1 that lacks a parent at the hierarchical level (j-1) immediately above it. Orphan positions are marked with a value of 1 in the "Orphan" column, indicating their orphan status;for all other positions are "Orphan" is assigned the value 0.
+#'   - \code{childless}: If \code{fullHierarchy} is set to \code{TRUE}, a "childless" position is one at a hierarchical level (j) less than k that lacks a child at the hierarchical level (j+1) immediately below it. Childless positions are marked with a value of 1 in the "Childless" column, indicating their childless status;for all other positions, "childless" is set to 0.
+#'   - \code{duplicateLabel}:A value of 1 indicates that the position is involved in a duplicate label situation (where multiple positions share the same label at the same hierarchical level), while positions with unique labels are assigned a value of 0.
+#'   - \code{singleChildMismatch}: This column provides information about label hierarchy consistency in a hierarchical classification system as follows:
+#'     - 1: Mismatched labels between a parent and its single child.
+#'     - 9: Parent-child pairs with matching labels, but the parent has multiple children.
+#'     - 0: Compliance with the label hierarchy rule, indicating no mismatches or violations.
+#'   - \code{singleCodeError}: This column, included only if the singleChildCode parameter is not NULL, serves as a flag indicating whether a position is a single child while the level j segment is not among the admissible single single child codes (as indicated by the singleChildCode parameter). A value of 1 signifies non compliance, while a value of 0 indicates compliance with the coding rules.
+#'   - \code{multipleCodeError}:This column, included only if the multipleChildCode parameter is not NULL,  serves as a flag indicating whether a position is not a single child while the level j segment is not among the admissible multiple child codes (as indicated by the multipleChildCode parameter). A value of 1 signifies non compliance, while a value of 0 indicates compliance with the coding rules.
+#'   - \code{gapBefore}: The column is a binary (0/1) flag that indicates whether there is a gap before a specific code within its level in the hierarchy. A gap refers to the absence of a sibling code that should logically precede the given code(as indicated by the sequencing parameter). In other words, it checks if there is a missing code in the sequence before a particular code.
+#'   - \code{lastSibling}: The "LastSibling" column is a binary (0/1) flag that identifies whether a code is the last sibling code at its level in the hierarchy. It is only relevant for codes with multiple children, meaning there are other codes at the same level with the same parent.
 #'
 #' - \code{QC_noLevels}: A subset of the \code{QC_output} dataframe including only records for which levels are not defined. If this dataframe is not empty, it suggests that either the classification or the length file is not correctly specified.
 #'
@@ -53,14 +56,14 @@
 #' {
 #'   classification <- system.file("extdata", "Nace2.csv",
 #'     package = "correspondenceTables")
-#'   lengthsFile <- system.file("extdata", "lenghtsNace.csv",
+#'   lengths <- system.file("extdata", "lenghtsNace.csv",
 #'     package = "correspondenceTables")
 #'   CSVout <- system.file("extdata", "QC_Output.csv",
 #'     package = "correspondenceTables")
 #'
 #'   Output <- classificationQC(
 #'     classification = classification,
-#'     lengthsFile = lengthsFile,
+#'     lengths = lengths,
 #'     fullHierarchy = TRUE,
 #'     labelUniqueness  = TRUE,
 #'     labelHierarchy = TRUE,
@@ -85,16 +88,23 @@
 
 
 
-  classificationQC = function(classification, lengthsFile, fullHierarchy = TRUE, labelUniqueness  = TRUE, labelHierarchy = TRUE, singleChildCode = NULL, sequencing = NULL, CSVout = NULL) {
+classificationQC = function(classification, lengths, fullHierarchy = TRUE, labelUniqueness  = TRUE, labelHierarchy = TRUE, singleChildCode = NULL, sequencing = NULL, CSVout = NULL) {
   
-  if ((length(grep("csv", classification)) == 0) ){
-    stop("The classification should be provided as a csv file")
-  }
-  
-  if (length(grep("csv", classification)) > 0){
-    classification = read.csv(classification, header = TRUE)
-  }
-  classificationName <- colnames(classification)[1:1]
+    if (is.character(classification)) {
+      if (tolower(tools::file_ext(classification)) != "csv") {
+        stop("The classification should be provided as a csv file")
+      }
+      if (!file.exists(classification)) stop("The classification file does not exist.")
+      classification <- tryCatch({
+        read.csv(classification, header = TRUE)
+      }, error = function(e) {
+        stop("Error reading the classification file: ", e$message)
+      })
+    } else if (!is.data.frame(classification)) {
+      stop("The classification must be a data frame or a valid CSV file path.")
+    }
+    colnames(classification)[1:2] <- c("Code", "Label")
+    classificationName <- colnames(classification)[1]
   
   # #check that classification has only two columns
   # if(ncol(classification) != 2){
@@ -103,43 +113,52 @@
   # 
   colnames(classification)[1:2] = c("Code", "Label")
   
-  # (a) Robust check for file validity and extension
-  if (is.na(lengthsFile) || !is.character(lengthsFile) || length(lengthsFile) != 1) {
-    stop("The provided lengths file is invalid or missing.")
-  }
-  
-  if (tolower(file_ext(lengthsFile)) == "csv") {
-    # (b) Check if the file exists
-    if (file.exists(lengthsFile)) {
-      # (c) Try reading the CSV file
-      tryCatch({
-        first_line <- gsub("\"", "", readLines(lengthsFile, n = 1))    
-        expected_headers <- c("charb", "chare") 
-        header_columns <- unlist(strsplit(first_line, ",", fixed = TRUE))
-        header_columns <- gsub("\"", "", header_columns)
-        
-        if (length(header_columns) == length(expected_headers) && all(header_columns == expected_headers)) {
-          lengths <- read.csv(lengthsFile, header = TRUE)
-        } else {
-          warning("Variable names do not match the expected headers for the LengthsFile. Renaming and using the first columns.")
-          lengths <- read.csv(lengthsFile, header = FALSE)
-          colnames(lengths) <- expected_headers
-        }
-        
-        if (length(header_columns) > length(expected_headers)) {
-          warning("There are more columns than needed for LengthsFile. Using the first columns.")
-        }
-      }, error = function(e) {
-        stop("Error reading CSV file: ", e$message)
-      })
-    } else {
-      stop("The provided lengths file does not exist.")
+  # Accept lengths as data.frame or CSV path
+  if (is.character(lengths)) {
+    
+    if (tolower(tools::file_ext(lengths)) != "csv") {
+      stop("The provided file does not have a CSV extension.")
     }
-  } else {
-    stop("The provided file does not have a CSV extension.")
+    if (!file.exists(lengths)) stop("The lengths file does not exist.")
+    lengths <- tryCatch({
+      read.csv(lengths, header = TRUE)
+    }, error = function(e) {
+      stop("Error reading the lengths file: ", e$message)
+    })
+    
+    # Rename columns if not already correct
+    expected_headers <- c("charb", "chare")
+    if (!all(expected_headers %in% colnames(lengths))) {
+      warning("Variable names do not match expected headers. Renaming.")
+      colnames(lengths)[1:2] <- expected_headers
+    }
+    
+  } else if (!is.data.frame(lengths)) {
+    stop("The 'lengths' argument must be a data frame or a path to a CSV file.")
   }
-  ### RULE 1 - Correctness of formatting requirements (lengths file)
   
+  # Check formatting requirements
+  if (nrow(lengths) == 0) {
+    stop("Lengths file must have at least one row.")
+  }
+  
+  negative_lengths <- which(lengths[,1] < 1 | lengths[,2] < 1)
+  if (length(negative_lengths) > 0) {
+    stop(paste("Lengths must be strictly positive. Error at row:", negative_lengths))
+  }
+  
+  na_lengths <- which(is.na(lengths[,1]) | is.na(lengths[,2]))
+  if (length(na_lengths) > 0) {
+    stop(paste("Lengths cannot be missing. Error at row:", na_lengths))
+  }
+  
+  for (i in 1:(nrow(lengths)-1)) {
+    if (lengths[i,2] >= lengths[i+1,1]) {
+      stop(paste("Sequences should not overlap in the lengths definition. Error at row:", i+1))
+    }
+  }
+  
+  ### RULE 1 - Correctness of formatting requirements (lengths file)
   #check that char file has at least one row
   if(nrow(lengths) == 0){
     stop("Lengths file must have at least one row")
@@ -176,7 +195,12 @@
   QC_output = classification
   
   # Add hierarchical level column
-  QC_output$level = sapply(classification$Code, function(x) which(nchar(x) == lengths$chare))
+  QC_output$level <- sapply(classification$Code, function(x) {
+    lvl <- which(nchar(x) == lengths$chare)
+    if (length(lvl) == 0) return(NA_integer_)
+    else return(lvl)
+  })
+  QC_output$level <- as.integer(QC_output$level)
   
   # Initialize the superior column
   QC_output$Parent = NA
@@ -214,7 +238,7 @@
   
   # Add the 'superior' column based on the current level
   for (i in 1:nrow(QC_output)) {
-    if (QC_output$level[i] > 1) {
+    if (!is.na(QC_output$level[i]) && QC_output$level[i] > 1) {
       superior_col_name = paste0("Code", (QC_output$level[i] - 1))
       QC_output$Parent[i] = QC_output[i, superior_col_name]
     } else {
@@ -359,29 +383,27 @@
   
   ## RULE 7 - Single child code compliance 
   if (!is.null(singleChildCode)) {
-    
-    if (file.exists(singleChildCode) && length(grep("csv", tolower(singleChildCode))) > 0) {
-      # Lire le fichier et valider les entêtes
-      first_line <- readLines(singleChildCode, n = 1)
+    if (!is.null(singleChildCode)) {
+      if (is.character(singleChildCode)) {
+        if (!file.exists(singleChildCode)) stop("The singleChildCode file does not exist.")
+        
+        singleChildCode <- tryCatch({
+          read.csv(singleChildCode, header = TRUE)
+        }, error = function(e) {
+          stop("Error reading the singleChildCode file: ", e$message)
+        })
+        
+      } else if (!is.data.frame(singleChildCode)) {
+        stop("The singleChildCode argument must be a data frame or a valid CSV path.")
+      }
+      
+      # Vérifier et corriger les noms de colonnes si nécessaire
       expected_headers <- c("level", "singleCode", "multipleCode")
-      header_columns <- unlist(strsplit(first_line, ",", fixed = TRUE))
-      
-      if (length(header_columns) == length(expected_headers) && all(header_columns == expected_headers)) {
-        singleChildCode <- read.csv(singleChildCode, header = TRUE)
-      } else {
-        warning("Variable names do not match the expected headers for the SingleChildCode. Renaming and using the first columns.")
-        singleChildCode <- read.csv(singleChildCode, header = FALSE)
-        singleChildCode <- singleChildCode[-1, ]
-        colnames(singleChildCode) <- expected_headers
+      if (!all(expected_headers %in% colnames(singleChildCode))) {
+        warning("Variable names do not match expected headers. Renaming to 'level', 'singleCode', 'multipleCode'.")
+        colnames(singleChildCode)[1:3] <- expected_headers
       }
-      
-      if (length(header_columns) > length(expected_headers)) {
-        warning("There are more columns than needed for SingleChildCode. Using the first columns.")
-      }
-    } else {
-      stop("The provided sequencing file is not a CSV file or does not exist.")
     }
-    
     QC_output$singleCodeError <- 0
     QC_output$multipleCodeError <- 0
     
@@ -455,23 +477,36 @@
     }
     QC_multipleCodeError <- QC_output[multipleCodeError, ]
   }
-  
   ## RULE 8 - Sequencing of codes
   if (!is.null(sequencing)) {
+    if (is.character(sequencing)) {
+      if (!file.exists(sequencing)) stop("The sequencing file does not exist.")
+      
+      sequencing <- tryCatch({
+        read.csv(sequencing, header = TRUE)
+      }, error = function(e) {
+        stop("Error reading the sequencing file: ", e$message)
+      })
+      
+    } else if (!is.data.frame(sequencing)) {
+      stop("The sequencing argument must be a data frame or a valid CSV path.")
+    }
     
-    sequencing <- singleChildCode
-    sequencing <- sequencing[, -2]  # Remove singleCode
-    levels_to_filter <- unique(sequencing$level)
-    sequencing <- sequencing[sequencing$level %in% levels_to_filter, ]
+    # Vérification des colonnes
+    expected_headers <- c("level", "multipleCode")
+    if (!all(expected_headers %in% colnames(sequencing))) {
+      warning("Variable names do not match expected headers. Renaming to 'level', 'multipleCode'.")
+      colnames(sequencing)[1:2] <- expected_headers
+    }
     
     QC_output$gapBefore <- 0
     QC_output$lastSibling <- 0
     lengths$level <- seq_len(nrow(lengths))
+    levels_to_filter <- unique(sequencing$level)
     lengths2 <- lengths[lengths$level %in% levels_to_filter, ]
     lengths2$level <- NULL
     
     for (k in 1:nrow(lengths2)) {
-      
       segment_kplus1 <- na.omit(QC_output[[paste0("segment", k + 1)]])
       
       if (length(unique(nchar(segment_kplus1))) > 1) {
@@ -481,7 +516,7 @@
         next
       }
       
-      # Bloc de sécurisation des segments (si utilisé dans l’analyse)
+      # Bloc de sécurisation des segments
       segments <- rep(NA, nrow(QC_output))
       codes <- rep(NA, nrow(QC_output))
       for (j in 1:nrow(QC_output)) {
@@ -493,34 +528,31 @@
           
           segments[j] <- substr(QC_output$Code[j], lengths2[k, "charb"], lengths2[k, "chare"])
           codes[j] <- substr(QC_output$Code[j], 1, lengths2[k, "chare"])
-          
-        } else {
-          segments[j] <- NA
-          codes[j] <- NA
         }
       }
       
-      # Parents with children
-      parents_k <- QC_output$Code[which(QC_output$level == k)]
-      child_ls <- sapply(unique(parents_k), function(x) length(unique(na.omit(
-        QC_output[which(QC_output[[paste0("Code", k)]] == x), paste0("Code", k + 1)]
-      ))))
+      parents_k <- QC_output$Code[QC_output$level == k]
+      child_ls <- sapply(unique(parents_k), function(x)
+        length(unique(na.omit(QC_output[QC_output[[paste0("Code", k)]] == x, paste0("Code", k + 1)]))))
       
-      code_multichild <- QC_output[which(QC_output[[paste0("Code", k)]] %in% names(which(child_ls > 1)) &
-                                           !is.na(QC_output[[paste0("Code", k + 1)]]) &
-                                           QC_output$level == k + 1),
+      code_multichild <- QC_output[QC_output[[paste0("Code", k)]] %in% names(which(child_ls > 1)) &
+                                     !is.na(QC_output[[paste0("Code", k + 1)]]) &
+                                     QC_output$level == k + 1,
                                    c(paste0("Code", k), paste0("Code", k + 1))]
       
       level <- sequencing$level[k]
-      multi <- as.character(sequencing[which(sequencing[, 1] == level), 2])
+      multi <- as.character(sequencing[sequencing[, 1] == level, 2])
       multi <- if (length(multi) > 0) strsplit(multi, "")[[1]] else NULL
       
       multi_code <- str_sub(code_multichild[, 2], nchar(code_multichild[, 2]), nchar(code_multichild[, 2]))
       
-      mcode_ls <- sapply(unique(code_multichild[, 1]), function(x) code_multichild[, 2][which(code_multichild[, 1] == x)])
-      ecode_ls <- lapply(mcode_ls, function(x) str_sub(x, nchar(x), nchar(x)))
+      mcode_ls <- sapply(unique(code_multichild[, 1]), function(x)
+        code_multichild[, 2][code_multichild[, 1] == x])
+      ecode_ls <- lapply(mcode_ls, function(x)
+        str_sub(x, nchar(x), nchar(x)))
       
-      last_dig <- unlist(lapply(ecode_ls, function(x) which(x == max(x, na.rm = TRUE))[1]))
+      last_dig <- unlist(lapply(ecode_ls, function(x)
+        which(x == max(x, na.rm = TRUE))[1]))
       last_code <- as.vector(mapply(function(x, y) x[y], mcode_ls, last_dig))
       
       gap_find <- lapply(ecode_ls, function(x) match(multi, x))
@@ -528,8 +560,8 @@
       gapbefore_dig <- mapply(function(x, y) na.omit(x[y]), gap_find, code_gap)
       gapbefore_code <- as.vector(unlist(mapply(function(x, y) x[y], mcode_ls, gapbefore_dig)))
       
-      QC_output$lastSibling[which(QC_output$Code %in% last_code)] <- 1
-      QC_output$gapBefore[which(QC_output$Code %in% gapbefore_code)] <- 1
+      QC_output$lastSibling[QC_output$Code %in% last_code] <- 1
+      QC_output$gapBefore[QC_output$Code %in% gapbefore_code] <- 1
       
       row_child <- which(QC_output$level == k & QC_output$multipleCodeError == 1)
       QC_output$gapBefore[row_child] <- 9
@@ -544,7 +576,6 @@
     lastSibling <- which(QC_output$lastSibling == 1)
     QC_lastSibling <- QC_output[lastSibling, ]
   }
-  
   
   ## RESULTS
   colnames(QC_output)[1:1] <- classificationName
@@ -599,5 +630,5 @@
   
   return(return_ls)
   
-  }
+}
   
