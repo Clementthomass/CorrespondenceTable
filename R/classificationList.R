@@ -1,5 +1,5 @@
 #' @title List available classification schemes from CELLAR or FAO
-#' @description This function extracts, from the endpoint of interest (CELLAR or FAO), 
+#' @description List all classifications tables in the CELLAR or FAO repositories, 
 #' a list of all classifications that are available in that endpoint.
 #' Apart from basic information, the list also contains, for each classification listed,
 #' those elements (prefix name, URI, key, concept scheme, and title) that are necessary for parameterising a SPARQL call to extract the actual classification structure.
@@ -25,7 +25,6 @@
 #' @import httr
 #' @import jsonlite
 #' @export
-
 
 classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
   endpoint <- toupper(endpoint)
@@ -70,7 +69,8 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
                  FILTER (LANG(?Title) = 'en')}
         ORDER BY ?Title
       "
-    } else if (endpoint == "FAO") {
+    } else {
+      # The only remaining valid case here is "FAO"
       endpoint_url <- config$FAO
       SPARQL.query <- "
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -97,7 +97,8 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
       prefix <- gsub("\\.", "", str_dt[, 4])
       conceptscheme <- str_dt[, 5]
       title <- df[, 2]
-    } else if (endpoint == "FAO") {
+    } else {
+      # The only remaining valid case here is "FAO"
       str_dt <- strsplit(df[, 1], "/")
       mat_str_dt <- suppressWarnings(do.call(rbind, str_dt))
       df_str_dt <- as.data.frame(mat_str_dt)
@@ -120,9 +121,11 @@ classificationList <- function(endpoint = "ALL", showQuery = FALSE) {
       } else {
         uri <- df[, 1]
       }
-            title <- df[, 3]
+      
+      title <- df[, 3]
     }
-      result <- data.frame(
+    
+    result <- data.frame(
       Prefix = prefix,
       ConceptScheme = conceptscheme,
       URI = uri,
