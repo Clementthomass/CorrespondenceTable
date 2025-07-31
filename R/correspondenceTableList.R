@@ -1,4 +1,5 @@
 #' @title Retrieve a list of all correspondence tables in the CELLAR and FAO repositories
+#' @description List all correspondence tables in the CELLAR of FAO repositories
 #' @param endpoint Character. SPARQL endpoint(s) to query. Valid values are:
 #' \code{"CELLAR"}, \code{"FAO"}, or \code{"ALL"} (default).
 #'
