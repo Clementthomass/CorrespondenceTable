@@ -23,7 +23,7 @@ If \code{endpoint = "CELLAR"} or \code{"FAO"}, returns a \code{data.frame} with:
 If \code{endpoint = "ALL"}, returns a named list of two \code{data.frame}s: one for each endpoint.
 }
 \description{
-Retrieve a list of all correspondence tables in the CELLAR and FAO repositories
+List all correspondence tables in the CELLAR of FAO repositories
 }
 \details{
 The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
