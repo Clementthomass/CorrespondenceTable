@@ -23,7 +23,7 @@ If \code{endpoint} is "CELLAR" or "FAO", the function returns a data frame with 
 If \code{endpoint} is "ALL", the function returns a named list with two such data frames: one for \code{"CELLAR"} and one for \code{"FAO"}.
 }
 \description{
-This function extracts, from the endpoint of interest (CELLAR or FAO), 
+List all classifications tables in the CELLAR or FAO repositories, 
 a list of all classifications that are available in that endpoint.
 Apart from basic information, the list also contains, for each classification listed,
 those elements (prefix name, URI, key, concept scheme, and title) that are necessary for parameterising a SPARQL call to extract the actual classification structure.
