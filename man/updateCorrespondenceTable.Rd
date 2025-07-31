@@ -67,7 +67,7 @@ The other values is \code{FALSE}, which shows redundant records together with th
 }
 }
 \description{
-Update a correspondence table when one of the classifications has changed
+Update the correspondence table between two classifications when one out of them has been updated
 }
 \details{
 File and file name requirements:
