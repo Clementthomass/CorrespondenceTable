@@ -53,8 +53,9 @@ analyseCorrespondenceTable <- function(AB, A = NULL, longestAcodeOnly = FALSE, B
   unused_data_ab <- ab_data
   
   # Nrows > 0
-  if (nrow(ab_data) == 0) stop("No valid records found in the input correspondence table AB.")
-  
+  if (nrow(ab_data) == 0) {
+    stop("No valid records found in the input correspondence table AB")
+  }  
   # Missing value
   missing_code_rows <- ab_data[is.na(ab_data$Acode) | ab_data$Acode == "" | is.na(ab_data$Bcode) | ab_data$Bcode == "", ]
   if (nrow(missing_code_rows) > 0) stop(paste("Rows with missing values in the", ColumnNames_ab[1], "or", ColumnNames_ab[2], "column of the AB data:"))
