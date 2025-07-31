@@ -59,7 +59,7 @@ If \code{showQuery = TRUE}, the function returns a list of two elements:
 If \code{showQuery = FALSE}, the function returns only the \code{data.frame}.
 }
 \description{
-Retrieve correspondence tables between classifications from CELLAR/FAO
+Retrieve correspondence tables between classifications from the CELLAR and FAO repositories
 }
 \details{
 The behaviour of this function is contingent on the global option \code{useLocalDataForVignettes}:
