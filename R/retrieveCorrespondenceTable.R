@@ -1,5 +1,5 @@
 #' @title Retrieve classifications and correspondence tables stored as Linked Open Data
-#' @description Retrieve correspondence tables between classifications from CELLAR/FAO
+#' @description Retrieve correspondence tables between classifications from the CELLAR and FAO repositories
 #' @param endpoint SPARQL endpoints provide a standardized way to access data sets,
 #' making it easier to retrieve specific information or perform complex queries on linked data.
 #' The valid values are \code{"CELLAR"} or \code{"FAO"}.
