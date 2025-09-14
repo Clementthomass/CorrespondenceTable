@@ -11,7 +11,7 @@ Ctext_nullT = system.file("extdata/test", "LblYY.csv", package = "correspondence
 Ctext_nullT = utils::read.csv(Ctext_nullT, sep = ",", header = TRUE, check.names = FALSE, colClasses = c("character"), encoding = "UTF-8")
 
 expect_equal(CT_nullT[[1]], Ctext_nullT)
-
+ 
 # TEST 1b
 Ano = system.file("extdata/test", "NACE2no.csv", package = "correspondenceTables")
 AStarno = system.file("extdata/test", "NACE21no.csv", package = "correspondenceTables")

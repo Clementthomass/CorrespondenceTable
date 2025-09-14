@@ -14,7 +14,7 @@ test_that("analyseCorrespondenceTable works with valid data and explicit A/B cla
   # Check that the output is a list with exactly the expected components
   expect_true(is.list(result))
   expect_equal(names(result), c("Inventory", "Analysis"))
-  
+   
   expect_s3_class(result$Inventory, "data.frame")
   expect_s3_class(result$Analysis, "data.frame")
   

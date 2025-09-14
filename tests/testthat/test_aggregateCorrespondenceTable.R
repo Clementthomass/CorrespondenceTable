@@ -20,7 +20,7 @@ test_that("aggregateCorrespondenceTable errors on duplicate data", {
   
   expect_error(aggregateCorrespondenceTable(AB, A, B, NULL))
 })
-
+ 
 test_that("aggregateCorrespondenceTable errors on empty data", {
   AB <- system.file("extdata/test", "ab_data_empty.csv", package = "correspondenceTables")
   A <- system.file("extdata/test", "a_data.csv", package = "correspondenceTables")

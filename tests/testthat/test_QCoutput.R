@@ -13,7 +13,7 @@ test_that("[1] classificationQC() works with real NACE example", {
     sequencing = NULL,
     CSVout = NULL
   )
-  
+   
   expect_type(result, "list")
   expect_true("QC_output" %in% names(result))
   expect_s3_class(result$QC_output, "data.frame")

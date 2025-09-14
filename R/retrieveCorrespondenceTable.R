@@ -44,7 +44,7 @@
 #' When the option is set to \code{TRUE} via \code{options(useLocalDataForVignettes = TRUE)}, the function returns local (embedded) data instead of querying live SPARQL endpoints.
 #' This is useful for building vignettes or offline testing.
 
-
+ 
 #' @examples
 #' if (interactive()) {
 #'   endpoint = "CELLAR"
@@ -57,7 +57,7 @@
 #'   # if (!inherits(results_ls, "try-error")) View(results_ls[[2]])
 #' }
 
-
+ 
 retrieveCorrespondenceTable = function(endpoint, prefix, ID_table, language = "en", CSVout = NULL, showQuery = TRUE,localData = NULL) {
   #Check correctness of endpoint argument
   endpoint <- toupper(endpoint)
