@@ -20,7 +20,9 @@ prefixList <- function(endpoint, prefix = NULL) {
     "PREFIX is: <http://purl.org/ontology/is/core#>",
     "PREFIX isi: <http://purl.org/ontology/is/inst/>",
     "PREFIX cpc: <https://data.epo.org/linked-data/def/cpc/>",
-    "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
+    "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>",
+    "PREFIX CPC20: <https://unstats.un.org/classifications/CPC/v2.0/>",
+    "PREFIX CPC21: <https://unstats.un.org/classifications/CPC/v2.1/>"
   ))
   
   # --- Retrieve dynamic prefixes from the classification list ---
